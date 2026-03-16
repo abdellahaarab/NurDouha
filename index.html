@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quran Reader App</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Amiri&display=swap" rel="stylesheet">
+
+<style>
+body{
+font-family:'Cairo',sans-serif;
+}
+.arabic{
+font-family:'Amiri',serif;
+}
+</style>
+
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+
+<!-- NAVBAR -->
+
+<header class="bg-white shadow">
+
+<div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+
+<h1 class="text-2xl font-bold text-green-700">
+Quran Reader
+</h1>
+
+<nav class="space-x-6 hidden md:block">
+
+<a href="#features" class="hover:text-green-600">Features</a>
+<a href="#apps" class="hover:text-green-600">Apps</a>
+<a href="#download" class="hover:text-green-600">Download</a>
+
+</nav>
+
+</div>
+
+</header>
+
+
+
+<!-- HERO -->
+
+<section class="bg-gradient-to-r from-green-600 to-emerald-700 text-white py-24">
+
+<div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+
+<div>
+
+<h1 class="text-5xl font-bold mb-6 leading-tight">
+Read The Holy Quran Anywhere
+</h1>
+
+<p class="text-lg mb-8 opacity-90">
+A modern Quran reading experience available on Web and Android.
+Fast search, beautiful Mushaf layout and distraction-free reading.
+</p>
+
+<div class="space-x-4">
+
+<a href="#download"
+class="bg-white text-green-700 px-6 py-3 rounded-lg font-semibold shadow hover:bg-gray-100">
+Download App
+</a>
+
+<a href="reader.html"
+class="border border-white px-6 py-3 rounded-lg hover:bg-white hover:text-green-700">
+Open Web App
+</a>
+
+</div>
+
+</div>
+
+
+<div class="hidden md:block">
+
+<div class="bg-white p-2 rounded-2xl shadow-xl text-gray-900">
+
+<div class="hidden md:block">
+
+<img
+src="/assets/images/img-hearo.png"
+class="rounded-xl shadow-xl"
+/>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- FEATURES -->
+
+<section id="features" class="py-20">
+
+<div class="max-w-7xl mx-auto px-6">
+
+<h2 class="text-3xl font-bold text-center mb-16">
+Powerful Quran Features
+</h2>
+
+<div class="grid md:grid-cols-3 gap-10">
+
+
+<div class="bg-white p-8 rounded-xl shadow">
+
+<h3 class="font-semibold text-xl mb-3">
+Instant Quran Search
+</h3>
+
+<p class="text-gray-600">
+Find any verse instantly using powerful Arabic text search.
+</p>
+
+</div>
+
+
+<div class="bg-white p-8 rounded-xl shadow">
+
+<h3 class="font-semibold text-xl mb-3">
+Mushaf Reading Mode
+</h3>
+
+<p class="text-gray-600">
+Read the Quran in a clean page layout similar to the Mushaf.
+</p>
+
+</div>
+
+
+<div class="bg-white p-8 rounded-xl shadow">
+
+<h3 class="font-semibold text-xl mb-3">
+Fast Lightweight API
+</h3>
+
+<p class="text-gray-600">
+The app loads instantly using a lightweight Quran JSON API.
+</p>
+
+</div>
+
+
+<div class="bg-white p-8 rounded-xl shadow">
+
+<h3 class="font-semibold text-xl mb-3">
+Mobile Friendly
+</h3>
+
+<p class="text-gray-600">
+Fully responsive and optimized for mobile reading.
+</p>
+
+</div>
+
+
+<div class="bg-white p-8 rounded-xl shadow">
+
+<h3 class="font-semibold text-xl mb-3">
+Offline Ready
+</h3>
+
+<p class="text-gray-600">
+Works smoothly even with limited internet connectivity.
+</p>
+
+</div>
+
+
+<div class="bg-white p-8 rounded-xl shadow">
+
+<h3 class="font-semibold text-xl mb-3">
+Open Source
+</h3>
+
+<p class="text-gray-600">
+Built with modern technologies and available for developers.
+</p>
+
+</div>
+
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- APPS -->
+
+<section id="apps" class="bg-gray-100 py-20">
+
+<div class="max-w-7xl mx-auto px-6">
+
+<h2 class="text-3xl font-bold text-center mb-16">
+Available Platforms
+</h2>
+
+<div class="grid md:grid-cols-2 gap-12">
+
+
+<div class="bg-white p-10 rounded-xl shadow">
+
+<h3 class="text-xl font-semibold mb-4">
+Web Application
+</h3>
+
+<p class="text-gray-600 mb-6">
+Access the Quran directly from your browser with a fast and
+beautiful interface.
+</p>
+
+<a href="reader.html"
+class="bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700">
+Open Web Reader
+</a>
+
+</div>
+
+
+<div class="bg-white p-10 rounded-xl shadow">
+
+<h3 class="text-xl font-semibold mb-4">
+Android Application
+</h3>
+
+<p class="text-gray-600 mb-6">
+Read the Quran on your Android device with an optimized mobile interface.
+</p>
+
+<a href="#download"
+class="bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700">
+Download APK
+</a>
+
+</div>
+
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- DOWNLOAD -->
+
+<section id="download" class="py-20 bg-green-700 text-white text-center">
+
+<div class="max-w-3xl mx-auto px-6">
+
+<h2 class="text-3xl font-bold mb-6">
+Download Quran Reader
+</h2>
+
+<p class="mb-8 opacity-90">
+Install the Android app or start reading directly in your browser.
+</p>
+
+<div class="space-x-4">
+
+<a href="#"
+class="bg-white text-green-700 px-6 py-3 rounded-lg font-semibold">
+Download APK
+</a>
+
+<a href="reader.html"
+class="border border-white px-6 py-3 rounded-lg">
+Open Web App
+</a>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- FOOTER -->
+
+<footer class="bg-gray-900 text-gray-400 py-12">
+
+<div class="max-w-7xl mx-auto px-6 text-center">
+
+<h3 class="text-white text-lg font-semibold mb-4">
+Quran Reader
+</h3>
+
+<p class="mb-6">
+A simple modern Quran reader built for learning and reflection.
+</p>
+
+<p class="text-sm text-gray-500">
+© 2026 Quran Reader Project
+</p>
+
+</div>
+
+</footer>
+
+
+</body>
+</html>
+
