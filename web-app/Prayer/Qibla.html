@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Qibla Direction - NurDouha</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Cairo',sans-serif;
+}
+
+.compass{
+width:260px;
+height:260px;
+border:8px solid #16a34a;
+border-radius:50%;
+position:relative;
+display:flex;
+align-items:center;
+justify-content:center;
+margin:auto;
+}
+
+.arrow{
+width:0;
+height:0;
+border-left:20px solid transparent;
+border-right:20px solid transparent;
+border-bottom:90px solid red;
+position:absolute;
+top:20px;
+transform-origin:center bottom;
+}
+
+.center-dot{
+width:14px;
+height:14px;
+background:#111;
+border-radius:50%;
+position:absolute;
+}
+
+</style>
+
+</head>
+
+<body class="bg-gray-100">
+
+
+<!-- Header -->
+
+<header class="bg-green-700 text-white py-4 shadow">
+
+<div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+
+<h1 class="text-2xl font-bold">
+NurDouha Qibla
+</h1>
+
+<a href="/" class="bg-white text-green-700 px-4 py-2 rounded">
+Home
+</a>
+
+</div>
+
+</header>
+
+
+<!-- Main -->
+
+<div class="max-w-4xl mx-auto px-6 py-12 text-center">
+
+<h2 class="text-3xl font-bold mb-6">
+Qibla Direction
+</h2>
+
+<p class="text-gray-600 mb-10">
+Find the direction of the Kaaba from your current location.
+</p>
+
+
+<!-- Compass -->
+
+<div class="compass">
+
+<div id="arrow" class="arrow"></div>
+
+<div class="center-dot"></div>
+
+</div>
+
+
+<p id="status" class="mt-8 text-gray-600">
+Detecting your location...
+</p>
+
+
+</div>
+
+
+<script>
+
+
+const KAABA_LAT = 21.4225
+const KAABA_LON = 39.8262
+
+
+function toRadians(deg){
+return deg * Math.PI / 180
+}
+
+function toDegrees(rad){
+return rad * 180 / Math.PI
+}
+
+
+function calculateQibla(lat, lon){
+
+const φ1 = toRadians(lat)
+const φ2 = toRadians(KAABA_LAT)
+
+const Δλ = toRadians(KAABA_LON - lon)
+
+const y = Math.sin(Δλ) * Math.cos(φ2)
+
+const x =
+Math.cos(φ1)*Math.sin(φ2) -
+Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ)
+
+let θ = Math.atan2(y,x)
+
+θ = toDegrees(θ)
+
+return (θ + 360) % 360
+
+}
+
+
+function getLocation(){
+
+if(!navigator.geolocation){
+
+document.getElementById("status").innerText="Geolocation not supported"
+
+return
+}
+
+navigator.geolocation.getCurrentPosition(position=>{
+
+const lat = position.coords.latitude
+const lon = position.coords.longitude
+
+const qibla = calculateQibla(lat,lon)
+
+document.getElementById("status").innerText=
+`Qibla direction: ${qibla.toFixed(2)}°`
+
+rotateCompass(qibla)
+
+})
+
+}
+
+
+function rotateCompass(qibla){
+
+window.addEventListener("deviceorientation", function(event){
+
+const heading = event.alpha
+
+if(heading===null) return
+
+const rotation = qibla - heading
+
+document.getElementById("arrow").style.transform =
+`rotate(${rotation}deg)`
+
+})
+
+}
+
+
+getLocation()
+
+</script>
+
+
+</body>
+</html>
+
