@@ -31,22 +31,37 @@ font-family:'Cairo',sans-serif;
 NurDouha Docs
 </h1>
 
-<a href="index.html" class="bg-white text-green-700 px-4 py-2 rounded">
+<div class="flex items-center gap-4">
+
+<button id="menuBtn" class="md:hidden text-2xl">
+☰
+</button>
+
+<a href="../index.html" class="bg-white text-green-700 px-4 py-2 rounded">
 Home
 </a>
+
+</div>
 
 </div>
 
 </header>
 
 
+<!-- OVERLAY -->
+
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40 md:hidden"></div>
+
+
 <!-- LAYOUT -->
 
 <div class="flex">
 
+
 <!-- SIDEBAR -->
 
-<aside class="w-64 bg-white h-screen shadow hidden md:block p-6">
+<aside id="sidebar"
+class="fixed md:static top-0 left-0 w-64 h-full bg-white shadow p-6 transform -translate-x-full md:translate-x-0 transition duration-300 z-50">
 
 <h2 class="font-bold mb-4">Documentation</h2>
 
@@ -138,16 +153,34 @@ open index.html
 <pre class="bg-gray-900 text-green-400 p-4 rounded text-sm overflow-x-auto">
 NurDouha
 │
-├─ index.html
-├─ docs.html
-├─ web
-│   ├─ reader.html
-│   ├─ PrayerTimes.html
-│   └─ Qibla.html
+├─ android/
+│   └─ app-demo.apk
 │
-├─ assets
+├─ assets/
+│   ├─ images/
+│   ├─ icons/
+│   └─ screenshots/
+│
+├─ data/
+│   └─ quran.json
+│
+├─ web/
+│   │
+│   ├─ quran/
+│   │   └─ reader.html
+│   │
+│   ├─ prayer/
+│   │   ├─ PrayerTimes.html
+│   │   └─ Qibla.html
+│   │
+│   ├─ docs/
+│   │   └─ index.html
+│
+├─ index.html
 ├─ README.md
-└─ CONTRIBUTING.md
+├─ CONTRIBUTING.md
+├─ LICENSE
+└─ .gitignore
 </pre>
 
 </section>
@@ -191,6 +224,207 @@ for guidelines.
 </main>
 
 </div>
+
+
+
+<!-- footer  -->
+
+
+<!-- Footer -->
+
+<footer class="bg-gray-900 text-gray-300 mt-16">
+
+<div class="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-4 gap-10">
+
+<!-- Project Info -->
+
+<div>
+
+<h3 class="text-xl font-bold text-white mb-4">
+NurDouha Docs
+</h3>
+
+<p class="text-sm leading-relaxed">
+Official documentation for the NurDouha open-source project.
+Learn how to set up, use, and contribute to the platform including
+Quran reader, prayer tools, and future Islamic modules.
+</p>
+
+</div>
+
+
+<!-- Documentation -->
+
+<div>
+
+<h4 class="text-white font-semibold mb-4">
+Documentation
+</h4>
+
+<ul class="space-y-2 text-sm">
+
+<li>
+<a href="#intro" class="hover:text-green-400">
+Introduction
+</a>
+</li>
+
+<li>
+<a href="#getting" class="hover:text-green-400">
+Getting Started
+</a>
+</li>
+
+<li>
+<a href="#features" class="hover:text-green-400">
+Features
+</a>
+</li>
+
+<li>
+<a href="#structure" class="hover:text-green-400">
+Project Structure
+</a>
+</li>
+
+<li>
+<a href="#api" class="hover:text-green-400">
+API Reference
+</a>
+</li>
+
+</ul>
+
+</div>
+
+
+<!-- Resources -->
+
+<div>
+
+<h4 class="text-white font-semibold mb-4">
+Resources
+</h4>
+
+<ul class="space-y-2 text-sm">
+
+<li>
+<a href="https://cdn.jsdelivr.net/npm/quran-cloud@1.0.0/dist/quran.json" class="hover:text-green-400">
+Quran API
+</a>
+</li>
+
+<li>
+<a href="https://api.aladhan.com" class="hover:text-green-400">
+Prayer Times API
+</a>
+</li>
+
+<li>
+<a href="../web/Quran/reader.html" class="hover:text-green-400">
+Web App
+</a>
+</li>
+
+<li>
+<a href="../../index.html" class="hover:text-green-400">
+Landing Page
+</a>
+</li>
+
+</ul>
+
+</div>
+
+
+<!-- Project -->
+
+<div>
+
+<h4 class="text-white font-semibold mb-4">
+Project
+</h4>
+
+<ul class="space-y-2 text-sm">
+
+<li>
+<a href="https://github.com/abdellahaarab/NurDouha" class="hover:text-green-400">
+GitHub Repository
+</a>
+</li>
+
+<li>
+<a href="../../CONTRIBUTING.md" class="hover:text-green-400">
+Contributing Guide
+</a>
+</li>
+
+<li>
+<a href="../../README.md" class="hover:text-green-400">
+Project Overview
+</a>
+</li>
+
+<li>
+<a href="mailto:" class="hover:text-green-400">
+Contact
+</a>
+</li>
+
+</ul>
+
+</div>
+
+</div>
+
+
+<!-- Bottom -->
+
+<div class="border-t border-gray-700">
+
+<div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm">
+
+<p>
+© 2026 NurDouha — Documentation
+</p>
+
+<p class="text-gray-500">
+Developed by 
+<a href="https://github.com/abdellahaarab/" class="hover:text-green-400">
+Abdellah
+</a> — Open Islamic Platform
+</p>
+
+</div>
+
+</div>
+
+</footer>
+
+
+<!-- footer  -->
+
+<!-- SCRIPT -->
+
+<script>
+
+const btn = document.getElementById("menuBtn")
+const sidebar = document.getElementById("sidebar")
+const overlay = document.getElementById("overlay")
+
+btn.addEventListener("click", () => {
+sidebar.classList.toggle("-translate-x-full")
+overlay.classList.toggle("hidden")
+})
+
+overlay.addEventListener("click", () => {
+sidebar.classList.add("-translate-x-full")
+overlay.classList.add("hidden")
+})
+
+</script>
+
+
 
 
 </body>
