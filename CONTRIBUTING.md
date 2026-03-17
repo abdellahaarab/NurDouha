@@ -41,7 +41,7 @@ Since the project uses **HTML, TailwindCSS, and JavaScript**, no build process i
 You can simply open the main file:
 
 ```text
-web-app/reader.html
+web/reader.html
 ```
 
 ---

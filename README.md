@@ -23,7 +23,7 @@ Future modules will include **Prayer Times, Hadith collections, and Islamic book
 Open the Quran reader:
 
 ```text
-web-app/reader.html
+web/reader.html
 ```
 
 Or deploy the project using GitHub Pages.
@@ -70,7 +70,7 @@ NurDouha
 ├─ landing
 │   └─ index.html
 │
-├─ web-app
+├─ web
 │   └─ reader.html
 │
 ├─ android
