@@ -34,6 +34,8 @@ font-family:'Amiri',serif;
 Quran Reader
 </h1>
 
+<!-- Desktop Menu -->
+
 <nav class="space-x-6 hidden md:block">
 
 <a href="web-app/Prayer/PrayerTimes.html" class="hover:text-green-600">Prayer</a>
@@ -44,9 +46,41 @@ Quran Reader
 
 </nav>
 
+<!-- Mobile Button -->
+
+<button id="menuBtn" class="md:hidden text-2xl">
+☰
+</button>
+
+</div>
+
+<!-- Mobile Menu -->
+
+<div id="mobileMenu" class="hidden md:hidden px-6 pb-4 space-y-4">
+
+<a href="web-app/Prayer/PrayerTimes.html" class="block hover:text-green-600">Prayer</a>
+<a href="web-app/Prayer/Qibla.html" class="block hover:text-green-600">Qibla</a>
+<a href="#features" class="block hover:text-green-600">Features</a>
+<a href="#apps" class="block hover:text-green-600">Apps</a>
+<a href="#download" class="block hover:text-green-600">Download</a>
+
 </div>
 
 </header>
+
+
+<script>
+
+const btn = document.getElementById("menuBtn")
+const menu = document.getElementById("mobileMenu")
+
+btn.addEventListener("click", () => {
+menu.classList.toggle("hidden")
+})
+
+</script>
+
+
 
 
 
