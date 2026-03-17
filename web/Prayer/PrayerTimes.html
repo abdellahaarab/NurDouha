@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Prayer Times - NurDouha</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+font-family:'Cairo',sans-serif;
+}
+</style>
+
+</head>
+
+<body class="bg-gray-100">
+
+
+<!-- Header -->
+
+<header class="bg-green-700 text-white py-4 shadow">
+
+<div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+
+<h1 class="text-2xl font-bold">
+NurDouha Prayer Times
+</h1>
+
+<a href="/" class="bg-white text-green-700 px-4 py-2 rounded">
+Home
+</a>
+
+</div>
+
+</header>
+
+
+<!-- Main -->
+
+<div class="max-w-4xl mx-auto px-6 py-10">
+
+
+<!-- Location -->
+
+<div class="bg-white p-6 rounded-xl shadow mb-8">
+
+<h2 class="text-xl font-semibold mb-4">
+Location
+</h2>
+
+<div class="flex gap-4">
+
+<input
+id="city"
+placeholder="Enter city (example: Casablanca)"
+class="border p-2 rounded w-full"
+/>
+
+<button
+onclick="getPrayerTimes()"
+class="bg-green-600 text-white px-4 py-2 rounded"
+>
+Search
+</button>
+
+</div>
+
+<p id="locationName" class="text-gray-500 mt-3"></p>
+
+</div>
+
+
+<!-- Prayer Times -->
+
+<div class="bg-white p-8 rounded-xl shadow">
+
+<h2 class="text-2xl font-bold mb-6 text-center">
+Today's Prayer Times
+</h2>
+
+<div id="prayerTimes" class="space-y-4"></div>
+
+</div>
+
+
+</div>
+
+
+<script>
+
+const API="https://api.aladhan.com/v1/timingsByCity"
+
+function getPrayerTimes(){
+
+const city=document.getElementById("city").value || "Casablanca"
+const country="Morocco"
+
+fetch(`${API}?city=${city}&country=${country}&method=2`)
+.then(res=>res.json())
+.then(data=>{
+
+const timings=data.data.timings
+
+document.getElementById("locationName").innerText=
+`${data.data.meta.timezone} — ${city}`
+
+renderTimes(timings)
+
+})
+
+}
+
+
+function renderTimes(timings){
+
+const prayers=[
+"Fajr",
+"Dhuhr",
+"Asr",
+"Maghrib",
+"Isha"
+]
+
+const container=document.getElementById("prayerTimes")
+
+container.innerHTML=""
+
+const now=new Date()
+
+const currentMinutes=now.getHours()*60+now.getMinutes()
+
+prayers.forEach(name=>{
+
+const time=timings[name]
+
+const parts=time.split(":")
+const minutes=parseInt(parts[0])*60+parseInt(parts[1])
+
+let highlight=""
+
+if(minutes>currentMinutes && highlight===""){
+highlight="bg-green-100 border-green-500"
+}
+
+container.innerHTML+=`
+
+<div class="flex justify-between items-center border-l-4 ${highlight} p-4 rounded">
+
+<span class="font-semibold text-lg">
+${name}
+</span>
+
+<span class="text-green-700 font-bold">
+${time}
+</span>
+
+</div>
+
+`
+
+})
+
+}
+
+
+function getLocation(){
+
+if(navigator.geolocation){
+
+navigator.geolocation.getCurrentPosition(position=>{
+
+const lat=position.coords.latitude
+const lon=position.coords.longitude
+
+fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=2`)
+.then(res=>res.json())
+.then(data=>{
+
+renderTimes(data.data.timings)
+
+document.getElementById("locationName").innerText=
+data.data.meta.timezone
+
+})
+
+})
+
+}
+
+}
+
+
+getLocation()
+
+</script>
+
+
+<!-- Footer -->
+
+<footer class="bg-gray-900 text-gray-300 mt-16">
+
+<div class="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-10">
+
+<!-- Project Info -->
+
+<div>
+
+<h3 class="text-xl font-bold text-white mb-4">
+NurDouha
+</h3>
+
+<p class="text-sm leading-relaxed">
+NurDouha is an open-source Islamic platform providing tools for
+Quran reading, prayer times, Qibla direction, and other Islamic
+knowledge resources.
+</p>
+
+</div>
+
+
+<!-- Navigation -->
+
+<div>
+
+<h4 class="text-white font-semibold mb-4">
+Tools
+</h4>
+
+<ul class="space-y-2 text-sm">
+
+<li>
+<a href="../Quran/reader.html" class="hover:text-green-400">
+Quran Reader
+</a>
+</li>
+
+<li>
+<a href="../Prayer/PrayerTimes.html" class="hover:text-green-400">
+Prayer Times
+</a>
+</li>
+
+<li>
+<a href="../Prayer/Qibla.html" class="hover:text-green-400">
+Qibla Direction
+</a>
+</li>
+
+</ul>
+
+</div>
+
+
+<!-- Future Features -->
+
+<div>
+
+<h4 class="text-white font-semibold mb-4">
+Coming Soon
+</h4>
+
+<ul class="space-y-2 text-sm">
+
+<li>Hadith Collection</li>
+<li>Islamic Books</li>
+<li>Tafsir</li>
+<li>Quran Audio</li>
+
+</ul>
+
+</div>
+
+</div>
+
+
+<!-- Bottom Bar -->
+
+<div class="border-t border-gray-700">
+
+<div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm">
+
+<p>
+© 2026 NurDouha — Open Islamic Platform
+</p>
+
+<p class="text-gray-500">
+Built with HTML, TailwindCSS & JavaScript
+</p>
+
+</div>
+
+</div>
+
+</footer>
+
+
+</body>
+</html>
+

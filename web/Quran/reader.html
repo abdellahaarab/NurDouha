@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quran Reader</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:'Cairo',sans-serif;
+}
+
+.arabic{
+font-family:'Amiri',serif;
+}
+
+</style>
+
+</head>
+
+<body class="bg-gray-100">
+
+<!-- Header -->
+
+<header class="bg-green-700 text-white py-4 shadow">
+
+<div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+
+<h1 class="text-2xl font-bold">
+    <a href="/" class="hover:text-grey-500">
+        Quran Reader
+    </a>
+</h1>
+
+<input
+id="search"
+placeholder="Search verse..."
+class="px-3 py-2 rounded text-black w-64"
+/>
+
+</div>
+
+</header>
+
+
+<div class="max-w-6xl mx-auto px-6 py-8">
+
+<!-- Surah List -->
+
+<div id="surahList" class="grid md:grid-cols-3 gap-6"></div>
+
+<!-- Search Results -->
+
+<div id="searchResults" class="hidden space-y-6"></div>
+
+<!-- Reader -->
+
+<div id="reader" class="hidden">
+
+<div class="flex justify-between mb-6">
+
+<button onclick="showList()" class="bg-green-600 text-white px-4 py-2 rounded">
+Back
+</button>
+
+<h2 id="surahTitle" class="text-2xl font-bold"></h2>
+
+<button onclick="toggleMode()" class="bg-gray-800 text-white px-4 py-2 rounded">
+Toggle Mushaf Mode
+</button>
+
+</div>
+
+<div id="verses" class="bg-white p-8 rounded-xl shadow text-right leading-loose arabic text-2xl"></div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const API="https://cdn.jsdelivr.net/npm/quran-cloud@1.0.0/dist/quran.json"
+
+let quran=[]
+let mushafMode=true
+
+async function loadQuran(){
+
+const res=await fetch(API)
+
+quran=await res.json()
+
+renderSurahList()
+
+}
+
+function renderSurahList(){
+
+const container=document.getElementById("surahList")
+
+container.innerHTML=""
+
+quran.forEach(surah=>{
+
+container.innerHTML+=`
+
+<div onclick="openSurah(${surah.id})"
+class="cursor-pointer bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+
+<div class="flex justify-between mb-2">
+
+<h3 class="text-xl font-bold">${surah.name}</h3>
+
+<span class="text-gray-500">${surah.total_verses}</span>
+
+</div>
+
+<p class="text-gray-500">${surah.transliteration}</p>
+
+</div>
+
+`
+
+})
+
+}
+
+function openSurah(id){
+
+const surah=quran.find(s=>s.id===id)
+
+document.getElementById("surahList").classList.add("hidden")
+document.getElementById("searchResults").classList.add("hidden")
+document.getElementById("reader").classList.remove("hidden")
+
+document.getElementById("surahTitle").innerText=
+`${surah.name} - ${surah.transliteration}`
+
+renderVerses(surah)
+
+}
+
+function renderVerses(surah){
+
+const container=document.getElementById("verses")
+
+container.innerHTML=""
+
+if(mushafMode){
+
+let page=""
+
+surah.verses.forEach(v=>{
+page+=`${v.text} <span class="text-green-700">(${v.id})</span> `
+})
+
+container.innerHTML=`<p>${page}</p>`
+
+}else{
+
+surah.verses.forEach(v=>{
+
+container.innerHTML+=`
+
+<div class="mb-6 border-b pb-4">
+
+<p class="arabic text-2xl">${v.text}</p>
+
+<p class="text-green-700 mt-2">Verse ${v.id}</p>
+
+</div>
+
+`
+
+})
+
+}
+
+}
+
+function toggleMode(){
+
+mushafMode=!mushafMode
+
+const title=document.getElementById("surahTitle").innerText
+
+const name=title.split(" - ")[0]
+
+const surah=quran.find(s=>s.name===name)
+
+renderVerses(surah)
+
+}
+
+function showList(){   
+
+document.getElementById("reader").classList.add("hidden")
+document.getElementById("searchResults").classList.add("hidden")
+document.getElementById("surahList").classList.remove("hidden")
+
+}
+
+
+
+document.addEventListener("keydown", function(e){
+
+if(e.key === "/"){
+
+e.preventDefault()
+
+document.getElementById("search").focus()
+
+}
+
+})
+
+
+loadQuran()
+
+</script>
+
+
+
+
+
+
+
+
+<!-- Footer -->
+
+<footer class="bg-gray-900 text-gray-300 mt-16">
+
+<div class="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-4 gap-10">
+
+<!-- App Info -->
+
+<div>
+
+<h3 class="text-xl font-bold text-white mb-4">
+Quran Reader
+</h3>
+
+<p class="text-sm leading-relaxed">
+A simple and fast Quran reader built with modern web technologies.
+Read the Holy Quran with a clean interface, search verses instantly,
+and enjoy a distraction-free reading experience.
+</p>
+
+</div>
+
+
+<!-- Navigation -->
+
+<div>
+
+<h4 class="text-white font-semibold mb-4">
+Navigation
+</h4>
+
+<ul class="space-y-2 text-sm">
+
+<li>
+<a href="#" onclick="showList()" class="hover:text-green-400">
+Surah List
+</a>
+</li>
+
+<li>
+<a href="#" onclick="document.getElementById('search').focus()" class="hover:text-green-400">
+Search Verses
+</a>
+</li>
+
+<li>
+<a href="#" onclick="toggleMode()" class="hover:text-green-400">
+Toggle Mushaf Mode
+</a>
+</li>
+
+</ul>
+
+</div>
+
+
+<!-- Quran Info -->
+
+<div>
+
+<h4 class="text-white font-semibold mb-4">
+Quran Info
+</h4>
+
+<ul class="space-y-2 text-sm">
+
+<li>114 Surahs</li>
+
+<li>6236 Verses</li>
+
+<li>Meccan & Medinan Surahs</li>
+
+<li>Arabic Mushaf Text</li>
+
+</ul>
+
+</div>
+
+
+<!-- Developer -->
+
+<div>
+
+<h4 class="text-white font-semibold mb-4">
+Project
+</h4>
+
+<ul class="space-y-2 text-sm">
+
+<li>
+<a href="https://github.com/abdellahaarab/NurDouha" class="hover:text-green-400">
+GitHub Repository
+</a>
+</li>
+
+<li>
+<a href="https://cdn.jsdelivr.net/npm/quran-cloud@1.0.0/dist/quran.json" class="hover:text-green-400">
+API Source
+</a>
+</li>
+
+<li>
+<a href="../docs.html" class="hover:text-green-400">
+Documentation
+</a>
+</li>
+
+</ul>
+
+</div>
+
+</div>
+
+
+<!-- Bottom -->
+
+<div class="border-t border-gray-700">
+
+<div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm">
+
+<p>
+© 2026 Quran Reader — All Rights Reserved
+</p>
+
+<p class="text-gray-500">
+Built with HTML, TailwindCSS & Quran API
+</p>
+
+</div>
+
+</div>
+
+</footer>
+
+</body>
+</html>
+
