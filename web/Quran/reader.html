@@ -1,375 +1,784 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlRoot">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quran Reader — NurDouha</title>
+  <meta name="description" content="Read the Holy Quran online with a beautiful, distraction-free interface. Search surahs, bookmark verses, and switch reading modes.">
 
-<title>Quran Reader</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 
-<script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ── Base ── */
+    body { font-family: 'Cairo', sans-serif; }
+    .arabic { font-family: 'Amiri', serif; }
 
-<link href="https://fonts.googleapis.com/css2?family=Amiri&family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+    /* ── Dark Mode ── */
+    html.dark body            { background: #0f172a; color: #e2e8f0; }
+    html.dark #sidebar        { background: #1e293b; border-color: #334155; }
+    html.dark .surah-card     { background: #1e293b; border-color: #334155; }
+    html.dark .surah-card:hover { background: #263548; }
+    html.dark .active-surah   { background: #14532d !important; border-color: #16a34a !important; }
+    html.dark #readerPanel    { background: #0f172a; }
+    html.dark #verseContainer { background: #1e293b; border-color: #334155; }
+    html.dark .verse-item     { border-color: #334155; }
+    html.dark .verse-item:hover { background: #263548; }
+    html.dark #searchInput    { background: #1e293b; border-color: #475569; color: #e2e8f0; }
+    html.dark #searchInput::placeholder { color: #64748b; }
+    html.dark .translation-text { color: #94a3b8; }
+    html.dark .top-bar        { background: #1e293b; border-color: #334155; }
+    html.dark .settings-panel { background: #1e293b; border-color: #334155; }
 
-<style>
+    /* ── Layout ── */
+    #app { display: flex; height: 100vh; overflow: hidden; }
 
-body{
-font-family:'Cairo',sans-serif;
-}
+    #sidebar {
+      width: 340px;
+      min-width: 280px;
+      max-width: 340px;
+      background: #f8fafc;
+      border-right: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+      z-index: 20;
+    }
 
-.arabic{
-font-family:'Amiri',serif;
-}
+    @media (max-width: 768px) {
+      #sidebar {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        transform: translateX(-100%);
+        width: 85%;
+        max-width: 320px;
+      }
+      #sidebar.open { transform: translateX(0); box-shadow: 4px 0 30px rgba(0,0,0,0.15); }
+      #sidebarOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 19; }
+      #sidebarOverlay.show { display: block; }
+    }
 
-</style>
+    #readerPanel {
+      flex: 1;
+      overflow-y: auto;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+    }
 
+    /* ── Surah list ── */
+    #surahListContainer { overflow-y: auto; flex: 1; padding: 8px; }
+
+    .surah-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    }
+    .surah-card:hover { background: #f0fdf4; border-color: #bbf7d0; box-shadow: 0 2px 12px rgba(22,163,74,0.08); }
+    .active-surah { background: #f0fdf4 !important; border-color: #16a34a !important; }
+
+    .surah-num {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #16a34a, #059669);
+      color: white;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* ── Verse container ── */
+    #verseContainer {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      margin: 0 24px 24px;
+    }
+
+    .verse-item {
+      padding: 20px 24px;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.15s;
+    }
+    .verse-item:last-child { border-bottom: none; }
+    .verse-item:hover { background: #fafffe; }
+
+    .verse-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      color: #14532d;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    /* ── Mushaf mode ── */
+    #mushafContainer {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      margin: 0 24px 24px;
+      padding: 32px 36px;
+      text-align: right;
+      line-height: 2.8;
+    }
+    html.dark #mushafContainer { background: #1e293b; border-color: #334155; }
+
+    /* ── Font sizes ── */
+    .fs-sm  .arabic-verse { font-size: 1.4rem !important; }
+    .fs-md  .arabic-verse { font-size: 1.75rem !important; }
+    .fs-lg  .arabic-verse { font-size: 2.2rem !important; }
+    .fs-xl  .arabic-verse { font-size: 2.8rem !important; }
+
+    /* ── Bookmarked verse ── */
+    .bookmarked { background: #fefce8 !important; }
+    html.dark .bookmarked { background: #1c1a00 !important; }
+
+    /* ── Loading spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid #dcfce7;
+      border-top-color: #16a34a;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #16a34a; }
+
+    /* ── Settings panel ── */
+    .settings-panel {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px;
+      position: absolute;
+      right: 0; top: calc(100% + 8px);
+      width: 260px;
+      z-index: 50;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    }
+
+    /* ── Top bar ── */
+    .top-bar {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    /* ── Badge Meccan/Medinan ── */
+    .badge-meccan  { background: #fef3c7; color: #92400e; font-size: 0.65rem; padding: 2px 8px; border-radius: 100px; font-weight: 700; }
+    .badge-medinan { background: #dbeafe; color: #1e40af; font-size: 0.65rem; padding: 2px 8px; border-radius: 100px; font-weight: 700; }
+
+    /* ── Bookmark button ── */
+    .btn-bookmark {
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .verse-item:hover .btn-bookmark,
+    .verse-item .btn-bookmark.saved { opacity: 1; }
+
+    /* ── Fade in ── */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.35s ease forwards; }
+
+    /* ── Empty state ── */
+    .empty-state { text-align: center; padding: 60px 20px; color: #94a3b8; }
+  </style>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-50 text-gray-900">
 
-<!-- Header -->
+<div id="app">
 
-<header class="bg-green-700 text-white py-4 shadow">
+  <!-- ═══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <aside id="sidebar">
 
-<div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+    <!-- Sidebar Header -->
+    <div class="p-4 border-b border-gray-200 flex-shrink-0">
+      <div class="flex items-center justify-between mb-4">
+        <a href="../../index.html" class="flex items-center gap-2 text-green-700 hover:text-green-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+          </svg>
+          <span class="text-sm font-bold">NurDouha</span>
+        </a>
+        <button id="sidebarClose" class="md:hidden p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+          <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <h2 class="text-lg font-black text-gray-900 mb-3">Quran Reader</h2>
+      <!-- Search -->
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input id="searchInput"
+               type="text"
+               placeholder="Search surah…  (Press /)"
+               class="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-all">
+      </div>
+    </div>
 
-<h1 class="text-2xl font-bold">
-    <a href="/" class="hover:text-grey-500">
-        Quran Reader
-    </a>
-</h1>
+    <!-- Surah List -->
+    <div id="surahListContainer">
+      <div class="flex items-center justify-center h-40">
+        <div class="spinner"></div>
+      </div>
+    </div>
 
-<input
-id="search"
-placeholder="Search verse..."
-class="px-3 py-2 rounded text-black w-64"
-/>
+  </aside>
 
-</div>
+  <!-- Sidebar overlay (mobile) -->
+  <div id="sidebarOverlay"></div>
 
-</header>
+  <!-- ═══════════════════════════════════════
+       READER PANEL
+  ═══════════════════════════════════════ -->
+  <main id="readerPanel">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <!-- Hamburger (mobile) -->
+      <button id="sidebarToggle" class="md:hidden flex-shrink-0 p-2 rounded-xl hover:bg-gray-100 transition-colors">
+        <svg class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+
+      <!-- Surah Title -->
+      <div class="flex-1 min-w-0">
+        <h1 id="topTitle" class="text-base font-bold text-gray-900 truncate">Select a Surah</h1>
+        <p id="topMeta"  class="text-xs text-gray-500 hidden"></p>
+      </div>
+
+      <!-- Settings -->
+      <div class="flex items-center gap-2 flex-shrink-0">
+
+        <!-- Mode toggle -->
+        <button id="modeBtn" title="Toggle reading mode"
+                class="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-green-600">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h8"/>
+          </svg>
+        </button>
+
+        <!-- Translation toggle -->
+        <button id="transBtn" title="Toggle translation"
+                class="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-green-600 hidden" id="transBtn">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+          </svg>
+        </button>
+
+        <!-- Settings panel trigger -->
+        <div class="relative">
+          <button id="settingsBtn" title="Settings"
+                  class="p-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-green-600">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </button>
+          <!-- Settings dropdown -->
+          <div id="settingsPanel" class="settings-panel hidden">
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Font Size</p>
+            <div class="flex gap-2 mb-4">
+              <button onclick="setFontSize('sm')"  class="fs-btn flex-1 py-2 text-sm font-bold rounded-lg border border-gray-200 hover:border-green-400 hover:bg-green-50 transition-colors" data-size="sm">S</button>
+              <button onclick="setFontSize('md')"  class="fs-btn flex-1 py-2 text-sm font-bold rounded-lg border border-gray-200 hover:border-green-400 hover:bg-green-50 transition-colors" data-size="md">M</button>
+              <button onclick="setFontSize('lg')"  class="fs-btn flex-1 py-2 text-sm font-bold rounded-lg border border-gray-200 hover:border-green-400 hover:bg-green-50 transition-colors" data-size="lg">L</button>
+              <button onclick="setFontSize('xl')"  class="fs-btn flex-1 py-2 text-sm font-bold rounded-lg border border-gray-200 hover:border-green-400 hover:bg-green-50 transition-colors" data-size="xl">XL</button>
+            </div>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Theme</p>
+            <button id="darkBtn" onclick="toggleDark()"
+                    class="w-full py-2.5 text-sm font-bold rounded-lg border border-gray-200 hover:border-green-400 hover:bg-green-50 transition-colors flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+              </svg>
+              <span id="darkBtnLabel">Dark Mode</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Welcome screen ── -->
+    <div id="welcomeScreen" class="flex-1 flex items-center justify-center p-12 text-center">
+      <div>
+        <div class="w-24 h-24 bg-green-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+          <svg class="w-12 h-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-black text-gray-900 mb-3">Quran Reader</h2>
+        <p class="text-gray-500 text-lg mb-2">Select a surah from the list to begin reading.</p>
+        <p class="text-gray-400 text-sm">Press <kbd class="bg-gray-100 px-2 py-0.5 rounded font-mono text-xs">/</kbd> to search surahs</p>
+      </div>
+    </div>
+
+    <!-- ── Reader content (hidden until surah selected) ── -->
+    <div id="readerContent" class="hidden flex-1 py-6">
+
+      <!-- Surah header -->
+      <div class="text-center px-6 mb-8">
+        <div id="surahNameAr" class="arabic text-5xl text-gray-900 mb-2"></div>
+        <div id="surahNameEn" class="text-lg text-gray-600 font-semibold mb-1"></div>
+        <div id="surahMeta"   class="flex items-center justify-center gap-3 text-sm text-gray-400"></div>
+        <!-- Bismillah (except Surah 9) -->
+        <div id="bismillah" class="arabic text-3xl text-gray-700 mt-6 mb-2">
+          بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+        </div>
+      </div>
+
+      <!-- Verse list mode -->
+      <div id="verseContainer" class="hidden fade-in"></div>
+
+      <!-- Mushaf mode -->
+      <div id="mushafContainer" class="hidden fade-in">
+        <p id="mushafText" class="arabic arabic-verse text-right leading-loose text-gray-900"></p>
+      </div>
+
+      <!-- Translation loading indicator -->
+      <div id="transLoading" class="hidden text-center py-4">
+        <div class="spinner mx-auto"></div>
+        <p class="text-sm text-gray-400 mt-3">Loading translation…</p>
+      </div>
+
+    </div>
+
+  </main>
+
+</div><!-- /#app -->
 
 
-<div class="max-w-6xl mx-auto px-6 py-8">
-
-<!-- Surah List -->
-
-<div id="surahList" class="grid md:grid-cols-3 gap-6"></div>
-
-<!-- Search Results -->
-
-<div id="searchResults" class="hidden space-y-6"></div>
-
-<!-- Reader -->
-
-<div id="reader" class="hidden">
-
-<div class="flex justify-between mb-6">
-
-<button onclick="showList()" class="bg-green-600 text-white px-4 py-2 rounded">
-Back
-</button>
-
-<h2 id="surahTitle" class="text-2xl font-bold"></h2>
-
-<button onclick="toggleMode()" class="bg-gray-800 text-white px-4 py-2 rounded">
-Toggle Mushaf Mode
-</button>
-
-</div>
-
-<div id="verses" class="bg-white p-8 rounded-xl shadow text-right leading-loose arabic text-2xl"></div>
-
-</div>
-
-</div>
+<!-- ═══════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════ -->
+<footer class="bg-gray-900 text-gray-400 py-10 border-t border-gray-800">
+  <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-4 gap-8">
+    <div>
+      <h3 class="text-white font-bold mb-3">NurDouha</h3>
+      <p class="text-sm leading-relaxed">A fast, beautiful Quran reader built for Muslims worldwide.</p>
+    </div>
+    <div>
+      <h4 class="text-white font-semibold mb-3">Navigation</h4>
+      <ul class="space-y-2 text-sm">
+        <li><a href="#" onclick="showWelcome()" class="hover:text-green-400 transition-colors">Surah List</a></li>
+        <li><a href="../../index.html" class="hover:text-green-400 transition-colors">Home</a></li>
+        <li><a href="../Prayer/PrayerTimes.html" class="hover:text-green-400 transition-colors">Prayer Times</a></li>
+        <li><a href="../Prayer/Qibla.html" class="hover:text-green-400 transition-colors">Qibla</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-white font-semibold mb-3">Quran Info</h4>
+      <ul class="space-y-2 text-sm">
+        <li>114 Surahs</li><li>6,236 Verses</li>
+        <li>Meccan &amp; Medinan</li><li>Arabic Uthmani</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-white font-semibold mb-3">Shortcuts</h4>
+      <ul class="space-y-2 text-sm">
+        <li><kbd class="bg-gray-800 px-2 py-0.5 rounded font-mono text-xs">/</kbd> Focus search</li>
+        <li><kbd class="bg-gray-800 px-2 py-0.5 rounded font-mono text-xs">Esc</kbd> Back to list</li>
+        <li><kbd class="bg-gray-800 px-2 py-0.5 rounded font-mono text-xs">D</kbd> Dark mode</li>
+        <li><kbd class="bg-gray-800 px-2 py-0.5 rounded font-mono text-xs">M</kbd> Mushaf mode</li>
+      </ul>
+    </div>
+  </div>
+  <div class="max-w-6xl mx-auto px-6 mt-8 pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-sm gap-3">
+    <p>© 2026 NurDouha — All Rights Reserved</p>
+    <p>Developed by <a href="https://github.com/abdellahaarab/" class="text-green-400 hover:text-green-300">Abdellah</a> · <a href="https://github.com/abdellahaarab/NurDouha" class="text-green-400 hover:text-green-300">GitHub</a></p>
+  </div>
+</footer>
 
 
 <script>
-
-const API="https://cdn.jsdelivr.net/npm/quran-cloud@1.0.0/dist/quran.json"
-
-let quran=[]
-let mushafMode=true
-
-async function loadQuran(){
-
-const res=await fetch(API)
-
-quran=await res.json()
-
-renderSurahList()
-
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+const state = {
+  quran: [],
+  activeSurahId: null,
+  mushafMode: false,
+  showTrans: false,
+  translations: {},   // { surahId: [verse texts] }
+  bookmarks: JSON.parse(localStorage.getItem('nd_bookmarks') || '[]'),
+  fontSize: localStorage.getItem('nd_fontsize') || 'lg',
+  darkMode: localStorage.getItem('nd_dark') === 'true'
 }
 
-function renderSurahList(){
+const API     = 'https://cdn.jsdelivr.net/npm/quran-cloud@1.0.0/dist/quran.json'
+const TRANS   = (id) => `https://api.alquran.cloud/v1/surah/${id}/en.asad`
 
-const container=document.getElementById("surahList")
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+async function init(){
+  applyFontSize(state.fontSize, false)
+  if(state.darkMode) document.getElementById('htmlRoot').classList.add('dark')
+  updateDarkBtn()
 
-container.innerHTML=""
-
-quran.forEach(surah=>{
-
-container.innerHTML+=`
-
-<div onclick="openSurah(${surah.id})"
-class="cursor-pointer bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
-
-<div class="flex justify-between mb-2">
-
-<h3 class="text-xl font-bold">${surah.name}</h3>
-
-<span class="text-gray-500">${surah.total_verses}</span>
-
-</div>
-
-<p class="text-gray-500">${surah.transliteration}</p>
-
-</div>
-
-`
-
-})
-
+  try {
+    const res = await fetch(API)
+    state.quran = await res.json()
+    renderSurahList(state.quran)
+  } catch(e) {
+    document.getElementById('surahListContainer').innerHTML =
+      `<div class="empty-state"><p class="text-red-400 font-semibold mb-2">Failed to load Quran data</p><p class="text-sm">Please check your internet connection</p></div>`
+  }
 }
 
-function openSurah(id){
-
-const surah=quran.find(s=>s.id===id)
-
-document.getElementById("surahList").classList.add("hidden")
-document.getElementById("searchResults").classList.add("hidden")
-document.getElementById("reader").classList.remove("hidden")
-
-document.getElementById("surahTitle").innerText=
-`${surah.name} - ${surah.transliteration}`
-
-renderVerses(surah)
-
+// ═══════════════════════════════════════════════════════════════
+//  SURAH LIST
+// ═══════════════════════════════════════════════════════════════
+function renderSurahList(list){
+  const container = document.getElementById('surahListContainer')
+  if(!list.length){
+    container.innerHTML = `<div class="empty-state"><p>No results found</p></div>`
+    return
+  }
+  container.innerHTML = list.map(s => {
+    const isActive = s.id === state.activeSurahId
+    return `
+    <div class="surah-card ${isActive ? 'active-surah' : ''}"
+         onclick="openSurah(${s.id})">
+      <div class="surah-num">${s.id}</div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-0.5">
+          <span class="font-bold text-sm text-gray-900 truncate">${s.transliteration}</span>
+          <span class="text-xs text-gray-400 font-mono ml-auto pl-2 flex-shrink-0">${s.total_verses}v</span>
+        </div>
+        <div class="arabic text-base text-gray-600 leading-none">${s.name}</div>
+      </div>
+    </div>`
+  }).join('')
 }
 
+// ═══════════════════════════════════════════════════════════════
+//  OPEN SURAH
+// ═══════════════════════════════════════════════════════════════
+async function openSurah(id){
+  state.activeSurahId = id
+  const surah = state.quran.find(s => s.id === id)
+  if(!surah) return
+
+  // Update sidebar active state
+  renderSurahList(
+    document.getElementById('searchInput').value.trim()
+      ? state.quran.filter(filterFn(document.getElementById('searchInput').value.trim()))
+      : state.quran
+  )
+
+  // Close sidebar on mobile
+  closeSidebarMobile()
+
+  // Update top bar
+  document.getElementById('topTitle').textContent = `${surah.transliteration} — ${surah.name}`
+  document.getElementById('topMeta').textContent  = `${surah.total_verses} Verses`
+  document.getElementById('topMeta').classList.remove('hidden')
+  document.getElementById('transBtn').classList.remove('hidden')
+
+  // Surah header
+  document.getElementById('surahNameAr').textContent = surah.name
+  document.getElementById('surahNameEn').textContent = surah.transliteration
+  document.getElementById('surahMeta').innerHTML =
+    `<span>${surah.total_verses} Verses</span><span>·</span><span>Surah ${surah.id}</span>`
+  document.getElementById('bismillah').style.display = surah.id === 9 ? 'none' : 'block'
+
+  // Show content
+  document.getElementById('welcomeScreen').classList.add('hidden')
+  document.getElementById('readerContent').classList.remove('hidden')
+
+  renderVerses(surah)
+
+  // Scroll to top of reader
+  document.getElementById('readerPanel').scrollTop = 0
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER VERSES
+// ═══════════════════════════════════════════════════════════════
 function renderVerses(surah){
+  const trans = state.translations[surah.id] || null
 
-const container=document.getElementById("verses")
+  if(state.mushafMode){
+    document.getElementById('verseContainer').classList.add('hidden')
+    const mushaf = document.getElementById('mushafContainer')
+    mushaf.classList.remove('hidden')
+    mushaf.classList.remove('fade-in')
+    void mushaf.offsetWidth
+    mushaf.classList.add('fade-in')
 
-container.innerHTML=""
+    const txt = surah.verses.map(v =>
+      `${v.text} <span class="inline-flex items-center justify-center w-7 h-7 bg-green-100 text-green-700 rounded-full text-xs font-bold mx-1">${v.id}</span>`
+    ).join(' ')
+    document.getElementById('mushafText').innerHTML = txt
+    document.getElementById('mushafContainer').className =
+      `arabic arabic-verse ${state.mushafMode ? '' : 'hidden'} fade-in fs-${state.fontSize}`
+    applyFontSize(state.fontSize, false)
 
-if(mushafMode){
+  } else {
+    document.getElementById('mushafContainer').classList.add('hidden')
+    const container = document.getElementById('verseContainer')
+    container.classList.remove('hidden')
+    container.classList.remove('fade-in')
+    void container.offsetWidth
+    container.classList.add('fade-in')
 
-let page=""
+    const bmSet = new Set(state.bookmarks.filter(b => b.s === surah.id).map(b => b.v))
+    container.innerHTML = surah.verses.map(v => {
+      const isBm = bmSet.has(v.id)
+      const transLine = (state.showTrans && trans)
+        ? `<p class="text-gray-500 translation-text text-sm mt-2 text-left leading-relaxed">${trans[v.id - 1] || ''}</p>`
+        : ''
+      return `
+      <div class="verse-item ${isBm ? 'bookmarked' : ''}" id="v-${surah.id}-${v.id}">
+        <div class="flex items-start justify-between gap-4">
+          <button class="btn-bookmark ${isBm ? 'saved' : ''} flex-shrink-0 mt-1 p-1.5 rounded-lg hover:bg-amber-100 transition-colors"
+                  onclick="toggleBookmark(${surah.id}, ${v.id})"
+                  title="${isBm ? 'Remove bookmark' : 'Bookmark verse'}">
+            <svg class="w-4 h-4 ${isBm ? 'text-amber-500' : 'text-gray-300'}" fill="${isBm ? 'currentColor' : 'none'}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+            </svg>
+          </button>
+          <div class="flex-1 text-right">
+            <p class="arabic arabic-verse leading-loose text-gray-900 fs-${state.fontSize}">${v.text}
+              <span class="verse-num">${v.id}</span>
+            </p>
+            ${transLine}
+          </div>
+        </div>
+      </div>`
+    }).join('')
 
-surah.verses.forEach(v=>{
-page+=`${v.text} <span class="text-green-700">(${v.id})</span> `
-})
-
-container.innerHTML=`<p>${page}</p>`
-
-}else{
-
-surah.verses.forEach(v=>{
-
-container.innerHTML+=`
-
-<div class="mb-6 border-b pb-4">
-
-<p class="arabic text-2xl">${v.text}</p>
-
-<p class="text-green-700 mt-2">Verse ${v.id}</p>
-
-</div>
-
-`
-
-})
-
+    applyFontSize(state.fontSize, false)
+  }
 }
 
+// ═══════════════════════════════════════════════════════════════
+//  BOOKMARKS
+// ═══════════════════════════════════════════════════════════════
+function toggleBookmark(surahId, verseId){
+  const idx = state.bookmarks.findIndex(b => b.s === surahId && b.v === verseId)
+  if(idx >= 0){
+    state.bookmarks.splice(idx, 1)
+  } else {
+    state.bookmarks.push({ s: surahId, v: verseId })
+  }
+  localStorage.setItem('nd_bookmarks', JSON.stringify(state.bookmarks))
+  // Re-render if same surah open
+  if(state.activeSurahId === surahId && !state.mushafMode){
+    const surah = state.quran.find(s => s.id === surahId)
+    if(surah) renderVerses(surah)
+  }
 }
 
+// ═══════════════════════════════════════════════════════════════
+//  MUSHAF / VERSE MODE TOGGLE
+// ═══════════════════════════════════════════════════════════════
 function toggleMode(){
-
-mushafMode=!mushafMode
-
-const title=document.getElementById("surahTitle").innerText
-
-const name=title.split(" - ")[0]
-
-const surah=quran.find(s=>s.name===name)
-
-renderVerses(surah)
-
+  state.mushafMode = !state.mushafMode
+  if(state.activeSurahId){
+    const surah = state.quran.find(s => s.id === state.activeSurahId)
+    if(surah) renderVerses(surah)
+  }
 }
 
-function showList(){   
+// ═══════════════════════════════════════════════════════════════
+//  TRANSLATION
+// ═══════════════════════════════════════════════════════════════
+async function toggleTranslation(){
+  state.showTrans = !state.showTrans
+  document.getElementById('transBtn').classList.toggle('text-green-600', state.showTrans)
+  document.getElementById('transBtn').classList.toggle('text-gray-500', !state.showTrans)
 
-document.getElementById("reader").classList.add("hidden")
-document.getElementById("searchResults").classList.add("hidden")
-document.getElementById("surahList").classList.remove("hidden")
+  if(!state.activeSurahId) return
+  const surah = state.quran.find(s => s.id === state.activeSurahId)
+  if(!surah) return
 
+  if(state.showTrans && !state.translations[surah.id]){
+    document.getElementById('transLoading').classList.remove('hidden')
+    try {
+      const res  = await fetch(TRANS(surah.id))
+      const data = await res.json()
+      state.translations[surah.id] = data.data.ayahs.map(a => a.text)
+    } catch(e) {
+      state.showTrans = false
+    }
+    document.getElementById('transLoading').classList.add('hidden')
+  }
+  renderVerses(surah)
 }
 
-
-
-document.addEventListener("keydown", function(e){
-
-if(e.key === "/"){
-
-e.preventDefault()
-
-document.getElementById("search").focus()
-
+// ═══════════════════════════════════════════════════════════════
+//  FONT SIZE
+// ═══════════════════════════════════════════════════════════════
+function setFontSize(size){
+  state.fontSize = size
+  localStorage.setItem('nd_fontsize', size)
+  applyFontSize(size, true)
+  document.querySelectorAll('.fs-btn').forEach(b => {
+    const active = b.dataset.size === size
+    b.classList.toggle('bg-green-600',  active)
+    b.classList.toggle('text-white',    active)
+    b.classList.toggle('border-green-600', active)
+    b.classList.toggle('bg-white',      !active)
+    b.classList.toggle('text-gray-700', !active)
+  })
 }
 
+function applyFontSize(size, reRender){
+  const sizes = { sm: '1.35rem', md: '1.7rem', lg: '2.1rem', xl: '2.7rem' }
+  document.querySelectorAll('.arabic-verse').forEach(el => {
+    el.style.fontSize = sizes[size] || sizes.lg
+  })
+  // Update mushaf font too
+  const mc = document.getElementById('mushafContainer')
+  if(mc) mc.style.fontSize = sizes[size] || sizes.lg
+  if(reRender && state.activeSurahId){
+    const surah = state.quran.find(s => s.id === state.activeSurahId)
+    if(surah) renderVerses(surah)
+  }
+  // Highlight active button
+  document.querySelectorAll('.fs-btn').forEach(b => {
+    const active = b.dataset.size === size
+    b.classList.toggle('bg-green-600',     active)
+    b.classList.toggle('text-white',       active)
+    b.classList.toggle('border-green-600', active)
+  })
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DARK MODE
+// ═══════════════════════════════════════════════════════════════
+function toggleDark(){
+  state.darkMode = !state.darkMode
+  document.getElementById('htmlRoot').classList.toggle('dark', state.darkMode)
+  localStorage.setItem('nd_dark', state.darkMode)
+  updateDarkBtn()
+}
+
+function updateDarkBtn(){
+  const label = document.getElementById('darkBtnLabel')
+  if(label) label.textContent = state.darkMode ? 'Light Mode' : 'Dark Mode'
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════════════════════════
+function filterFn(q){
+  const lq = q.toLowerCase()
+  return s =>
+    s.transliteration.toLowerCase().includes(lq) ||
+    s.name.includes(q) ||
+    String(s.id) === q
+}
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  const q = e.target.value.trim()
+  renderSurahList(q ? state.quran.filter(filterFn(q)) : state.quran)
 })
 
+// ═══════════════════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement.tagName
+  if(e.key === '/' && tag !== 'INPUT'){
+    e.preventDefault()
+    document.getElementById('searchInput').focus()
+    openSidebarMobile()
+  }
+  if(e.key === 'Escape'){
+    document.getElementById('searchInput').blur()
+    document.getElementById('settingsPanel').classList.add('hidden')
+    closeSidebarMobile()
+  }
+  if(e.key === 'd' && tag !== 'INPUT'){ toggleDark() }
+  if(e.key === 'm' && tag !== 'INPUT'){ toggleMode() }
+})
 
-loadQuran()
+// ═══════════════════════════════════════════════════════════════
+//  MOBILE SIDEBAR
+// ═══════════════════════════════════════════════════════════════
+function openSidebarMobile(){
+  document.getElementById('sidebar').classList.add('open')
+  document.getElementById('sidebarOverlay').classList.add('show')
+}
 
+function closeSidebarMobile(){
+  document.getElementById('sidebar').classList.remove('open')
+  document.getElementById('sidebarOverlay').classList.remove('show')
+}
+
+document.getElementById('sidebarToggle').addEventListener('click', () => {
+  const isOpen = document.getElementById('sidebar').classList.contains('open')
+  isOpen ? closeSidebarMobile() : openSidebarMobile()
+})
+document.getElementById('sidebarClose').addEventListener('click', closeSidebarMobile)
+document.getElementById('sidebarOverlay').addEventListener('click', closeSidebarMobile)
+
+// ═══════════════════════════════════════════════════════════════
+//  BUTTON WIRING
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('modeBtn').addEventListener('click', toggleMode)
+document.getElementById('transBtn').addEventListener('click', toggleTranslation)
+
+document.getElementById('settingsBtn').addEventListener('click', (e) => {
+  e.stopPropagation()
+  document.getElementById('settingsPanel').classList.toggle('hidden')
+})
+
+document.addEventListener('click', (e) => {
+  if(!document.getElementById('settingsBtn').contains(e.target)){
+    document.getElementById('settingsPanel').classList.add('hidden')
+  }
+})
+
+function showWelcome(){
+  state.activeSurahId = null
+  document.getElementById('welcomeScreen').classList.remove('hidden')
+  document.getElementById('readerContent').classList.add('hidden')
+  document.getElementById('topTitle').textContent = 'Select a Surah'
+  document.getElementById('topMeta').classList.add('hidden')
+  document.getElementById('transBtn').classList.add('hidden')
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════════════════════════
+init()
 </script>
-
-
-
-
-
-
-
-
-<!-- Footer -->
-
-<footer class="bg-gray-900 text-gray-300 mt-16">
-
-<div class="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-4 gap-10">
-
-<!-- App Info -->
-
-<div>
-
-<h3 class="text-xl font-bold text-white mb-4">
-Quran Reader
-</h3>
-
-<p class="text-sm leading-relaxed">
-A simple and fast Quran reader built with modern web technologies.
-Read the Holy Quran with a clean interface, search verses instantly,
-and enjoy a distraction-free reading experience.
-</p>
-
-</div>
-
-
-<!-- Navigation -->
-
-<div>
-
-<h4 class="text-white font-semibold mb-4">
-Navigation
-</h4>
-
-<ul class="space-y-2 text-sm">
-
-<li>
-<a href="#" onclick="showList()" class="hover:text-green-400">
-Surah List
-</a>
-</li>
-
-<li>
-<a href="#" onclick="document.getElementById('search').focus()" class="hover:text-green-400">
-Search Verses
-</a>
-</li>
-
-<li>
-<a href="#" onclick="toggleMode()" class="hover:text-green-400">
-Toggle Mushaf Mode
-</a>
-</li>
-
-</ul>
-
-</div>
-
-
-<!-- Quran Info -->
-
-<div>
-
-<h4 class="text-white font-semibold mb-4">
-Quran Info
-</h4>
-
-<ul class="space-y-2 text-sm">
-
-<li>114 Surahs</li>
-
-<li>6236 Verses</li>
-
-<li>Meccan & Medinan Surahs</li>
-
-<li>Arabic Mushaf Text</li>
-
-</ul>
-
-</div>
-
-
-<!-- Developer -->
-
-<div>
-
-<h4 class="text-white font-semibold mb-4">
-Project
-</h4>
-
-<ul class="space-y-2 text-sm">
-
-<li>
-<a href="https://github.com/abdellahaarab/NurDouha" class="hover:text-green-400">
-GitHub Repository
-</a>
-</li>
-
-<li>
-<a href="https://cdn.jsdelivr.net/npm/quran-cloud@1.0.0/dist/quran.json" class="hover:text-green-400">
-API Source
-</a>
-</li>
-
-<li>
-<a href="../../docs/index.html" class="hover:text-green-400">
-Documentation
-</a>
-</li>
-
-</ul>
-
-</div>
-
-</div>
-
-
-<!-- Bottom -->
-
-<div class="border-t border-gray-700">
-
-<div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm">
-
-<p>
-© 2026 Quran Reader — All Rights Reserved
-</p>
-
-<p class="text-gray-500">
-Developed by 
-<a href="https://github.com/abdellahaarab/" class="hover:text-green-400">
-Abdellah
-</a> as part of the NurDouha open-source project
-</p>
-
-</div>
-
-</div>
-
-</footer>
 
 </body>
 </html>
-
