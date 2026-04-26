@@ -1,360 +1,671 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NurDouha — Premium Islamic Platform</title>
+  <meta name="description" content="Read the Holy Quran, get accurate prayer times, and find Qibla direction with NurDouha — the world's most beautiful Islamic web platform.">
+  <meta property="og:title" content="NurDouha — Premium Islamic Platform">
+  <meta property="og:description" content="Quran Reader · Prayer Times · Qibla Direction">
 
-<title>Quran Reader App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 
-<script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Cairo', sans-serif; }
+    .arabic { font-family: 'Amiri', serif; }
 
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Amiri&display=swap" rel="stylesheet">
+    /* Hero background */
+    .hero-bg {
+      background: linear-gradient(135deg, #052e16 0%, #14532d 50%, #065f46 100%);
+    }
 
-<style>
-body{
-font-family:'Cairo',sans-serif;
-}
-.arabic{
-font-family:'Amiri',serif;
-}
-</style>
+    /* Dot grid pattern overlay */
+    .dot-pattern {
+      background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1.5px, transparent 1.5px);
+      background-size: 36px 36px;
+    }
 
+    /* Navbar glass */
+    .glass {
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    /* Scroll animations */
+    .anim {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .anim.in { opacity: 1; transform: translateY(0); }
+    .anim-d1 { transition-delay: 0.1s; }
+    .anim-d2 { transition-delay: 0.2s; }
+    .anim-d3 { transition-delay: 0.3s; }
+
+    /* Card hover lift */
+    .lift {
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .lift:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 28px 56px rgba(0,0,0,0.13);
+    }
+
+    /* Pulse dot */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+    /* Bounce arrow */
+    @keyframes bounce-y {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+    .bounce-y { animation: bounce-y 1.6s ease-in-out infinite; }
+
+    /* Gradient text */
+    .text-gradient {
+      background: linear-gradient(135deg, #4ade80, #86efac);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Feature icon */
+    .feat-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Tool card gradient tops */
+    .tool-quran  { background: linear-gradient(140deg, #14532d, #059669); }
+    .tool-prayer { background: linear-gradient(140deg, #1e3a8a, #3b82f6); }
+    .tool-qibla  { background: linear-gradient(140deg, #7c2d12, #f97316); }
+
+    /* Stats divider */
+    .stat-divider { border-right: 1px solid #e5e7eb; }
+    .stat-divider:last-child { border-right: none; }
+
+    /* Verse section */
+    .verse-bg {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #16a34a; border-radius: 3px; }
+  </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-white text-gray-900 overflow-x-hidden">
 
+<!-- ═══════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════ -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
-<!-- NAVBAR -->
+    <!-- Logo -->
+    <a href="index.html" class="flex items-center gap-3 group">
+      <div class="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center shadow-md group-hover:bg-green-700 transition-colors">
+        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+      </div>
+      <span id="logo-text" class="text-xl font-black text-white transition-colors">NurDouha</span>
+    </a>
 
-<header class="bg-white shadow">
+    <!-- Desktop Links -->
+    <div class="hidden md:flex items-center gap-8">
+      <a href="web/Quran/reader.html"        id="nl1" class="font-semibold text-white/90 hover:text-green-300 transition-colors">Quran</a>
+      <a href="web/Prayer/PrayerTimes.html"  id="nl2" class="font-semibold text-white/90 hover:text-green-300 transition-colors">Prayer Times</a>
+      <a href="web/Prayer/Qibla.html"        id="nl3" class="font-semibold text-white/90 hover:text-green-300 transition-colors">Qibla</a>
+      <a href="#features"                    id="nl4" class="font-semibold text-white/90 hover:text-green-300 transition-colors">Features</a>
+    </div>
 
-<div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <!-- CTA + Hamburger -->
+    <div class="flex items-center gap-3">
+      <a href="./android/NurDouha.apk"
+         class="hidden md:inline-flex items-center gap-2 bg-green-500 hover:bg-green-400 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg hover:shadow-green-500/30 transition-all text-sm">
+        Download
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <button id="menuBtn" class="md:hidden p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-colors">
+        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
 
-<h1 class="text-2xl font-bold text-green-700">
-Quran Reader
-</h1>
+  </div>
 
-<!-- Desktop Menu -->
-
-<nav class="space-x-6 hidden md:block">
-
-<a href="web/Prayer/PrayerTimes.html" class="hover:text-green-600">Prayer</a>
-<a href="web/Prayer/Qibla.html" class="hover:text-green-600">Qibla</a>
-<a href="#features" class="hover:text-green-600">Features</a>
-<a href="#apps" class="hover:text-green-600">Apps</a>
-<a href="#download" class="hover:text-green-600">Download</a>
-
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="hidden md:hidden glass border-t border-gray-100 px-6 py-5 space-y-3">
+    <a href="web/Quran/reader.html"       class="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-green-50 font-semibold text-gray-800 transition-colors">
+      <span class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center text-green-600">📖</span> Quran Reader
+    </a>
+    <a href="web/Prayer/PrayerTimes.html" class="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-blue-50 font-semibold text-gray-800 transition-colors">
+      <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">🕐</span> Prayer Times
+    </a>
+    <a href="web/Prayer/Qibla.html"       class="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-amber-50 font-semibold text-gray-800 transition-colors">
+      <span class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600">🧭</span> Qibla Direction
+    </a>
+    <a href="web/Quran/reader.html" class="block mt-2 bg-green-600 text-white py-3 px-5 rounded-xl text-center font-bold hover:bg-green-700 transition-colors">Open Quran Reader →</a>
+  </div>
 </nav>
 
-<!-- Mobile Button -->
 
-<button id="menuBtn" class="md:hidden text-2xl">
-☰
-</button>
+<!-- ═══════════════════════════════════════
+     HERO
+═══════════════════════════════════════ -->
+<section class="hero-bg min-h-screen flex items-center relative overflow-hidden">
 
-</div>
+  <!-- Dot pattern -->
+  <div class="dot-pattern absolute inset-0 pointer-events-none"></div>
 
-<!-- Mobile Menu -->
+  <!-- Glow blobs -->
+  <div class="absolute top-1/4 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-green-300/8 rounded-full blur-3xl pointer-events-none"></div>
 
-<div id="mobileMenu" class="hidden md:hidden px-6 pb-4 space-y-4">
+  <div class="max-w-7xl mx-auto px-6 pt-28 pb-20 grid md:grid-cols-2 gap-16 items-center relative z-10">
 
-<a href="web/Prayer/PrayerTimes.html" class="block hover:text-green-600">Prayer</a>
-<a href="web/Prayer/Qibla.html" class="block hover:text-green-600">Qibla</a>
-<a href="#features" class="block hover:text-green-600">Features</a>
-<a href="#apps" class="block hover:text-green-600">Apps</a>
-<a href="#download" class="block hover:text-green-600">Download</a>
+    <!-- Left: Text -->
+    <div>
+      <div class="badge inline-flex items-center gap-2 mb-8 text-white/80 text-sm border border-white/20 rounded-full px-4 py-2 font-semibold">
+        <span class="w-2 h-2 bg-green-400 rounded-full pulse-dot"></span>
+        Premium Islamic Platform
+      </div>
 
-</div>
+      <h1 class="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.08] mb-6">
+        Read The<br>
+        Holy <span class="text-gradient">Quran</span><br>
+        Online
+      </h1>
 
-</header>
+      <p class="text-lg text-green-100/80 leading-relaxed mb-10 max-w-md">
+        A world-class Quran reading experience with prayer times, Qibla direction,
+        and a beautifully distraction-free interface — all in your browser.
+      </p>
 
+      <div class="flex flex-col sm:flex-row gap-4 mb-12">
+        <a href="web/Quran/reader.html"
+           class="flex items-center justify-center gap-3 bg-white text-green-800 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-green-50 shadow-2xl shadow-black/20 transition-all hover:-translate-y-1 active:translate-y-0">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+          Open Quran Reader
+        </a>
+        <a href="web/Prayer/PrayerTimes.html"
+           class="flex items-center justify-center gap-3 border-2 border-white/30 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-white/10 transition-all">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Prayer Times
+        </a>
+      </div>
 
-<script>
+      <!-- Daily Verse Card -->
+      <div id="dailyVerse" class="hidden bg-white/10 border border-white/20 rounded-2xl p-5 backdrop-blur-sm">
+        <p class="text-green-300 text-xs font-bold uppercase tracking-widest mb-3">✦ Verse of the Day</p>
+        <p id="verseArabic" class="arabic text-2xl text-white text-right leading-loose mb-2 dir-rtl"></p>
+        <p id="verseRef"    class="text-green-300/80 text-sm font-medium"></p>
+      </div>
+    </div>
 
-const btn = document.getElementById("menuBtn")
-const menu = document.getElementById("mobileMenu")
+    <!-- Right: Preview Cards -->
+    <div class="hidden md:grid grid-cols-2 gap-4">
 
-btn.addEventListener("click", () => {
-menu.classList.toggle("hidden")
-})
+      <div class="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-6 hover:bg-white/15 transition-colors">
+        <div class="w-12 h-12 bg-green-400/80 rounded-xl flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-1">114 Surahs</h3>
+        <p class="text-green-200/70 text-sm">Complete Quran with Arabic text</p>
+      </div>
 
-</script>
+      <div class="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-6 mt-6 hover:bg-white/15 transition-colors">
+        <div class="w-12 h-12 bg-blue-400/80 rounded-xl flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-1">Prayer Times</h3>
+        <p class="text-green-200/70 text-sm">Any city · Auto-location</p>
+      </div>
 
+      <div class="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-6 hover:bg-white/15 transition-colors">
+        <div class="w-12 h-12 bg-amber-400/80 rounded-xl flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/>
+            <line x1="12" y1="2"  x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+          </svg>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-1">Qibla Direction</h3>
+        <p class="text-green-200/70 text-sm">Compass + Map to Kaaba</p>
+      </div>
 
+      <div class="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-6 mt-6 hover:bg-white/15 transition-colors">
+        <div class="w-12 h-12 bg-purple-400/80 rounded-xl flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-1">Verse Search</h3>
+        <p class="text-green-200/70 text-sm">Find any verse instantly</p>
+      </div>
 
+    </div>
+  </div>
 
-
-<!-- HERO -->
-
-<section class="bg-gradient-to-r from-green-600 to-emerald-700 text-white py-24">
-
-<div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-
-<div>
-
-<h1 class="text-5xl font-bold mb-6 leading-tight">
-Read The Holy Quran Anywhere
-</h1>
-
-<p class="text-lg mb-8 opacity-90">
-A modern Quran reading experience available on Web and Android.
-Fast search, beautiful Mushaf layout and distraction-free reading.
-</p>
-
-<div class="space-x-4">
-
-<a href="./android/NurDouha.apk"
-class="bg-white text-green-700 px-6 py-3 rounded-lg font-semibold shadow hover:bg-gray-100">
-Download App
-</a>
-
-<a href="web/Quran/reader.html"
-class="border border-white px-6 py-3 rounded-lg hover:bg-white hover:text-green-700">
-Open Web App
-</a>
-
-</div>
-
-</div>
-
-
-<div class="hidden md:block">
-
-<div class="bg-white p-2 rounded-2xl shadow-xl text-gray-900">
-
-<div class="hidden md:block">
-
-<img
-src="/assets/images/img-hearo.png"
-class="rounded-xl shadow-xl"
-/>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40">
+    <span class="text-xs uppercase tracking-[0.2em]">Scroll</span>
+    <svg class="w-4 h-4 bounce-y" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+    </svg>
+  </div>
 
 </section>
 
 
+<!-- ═══════════════════════════════════════
+     STATS BAR
+═══════════════════════════════════════ -->
+<section id="statsSection" class="bg-white border-b border-gray-100 py-12">
+  <div class="max-w-5xl mx-auto px-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-0">
 
-<!-- FEATURES -->
+      <div class="text-center px-6 py-4 stat-divider anim">
+        <div class="text-4xl font-black text-green-600 mb-1 counter" data-target="114">0</div>
+        <div class="text-gray-500 text-sm font-semibold uppercase tracking-wide">Surahs</div>
+      </div>
 
-<section id="features" class="py-20">
+      <div class="text-center px-6 py-4 stat-divider anim anim-d1">
+        <div class="text-4xl font-black text-green-600 mb-1 counter" data-target="6236">0</div>
+        <div class="text-gray-500 text-sm font-semibold uppercase tracking-wide">Verses</div>
+      </div>
 
-<div class="max-w-7xl mx-auto px-6">
+      <div class="text-center px-6 py-4 stat-divider anim anim-d2">
+        <div class="text-4xl font-black text-green-600 mb-1 counter" data-target="30">0</div>
+        <div class="text-gray-500 text-sm font-semibold uppercase tracking-wide">Juz Parts</div>
+      </div>
 
-<h2 class="text-3xl font-bold text-center mb-16">
-Powerful Quran Features
-</h2>
+      <div class="text-center px-6 py-4 anim anim-d3">
+        <div class="text-4xl font-black text-green-600 mb-1 counter" data-target="5">0</div>
+        <div class="text-gray-500 text-sm font-semibold uppercase tracking-wide">Daily Prayers</div>
+      </div>
 
-<div class="grid md:grid-cols-3 gap-10">
-
-
-<div class="bg-white p-8 rounded-xl shadow">
-
-<h3 class="font-semibold text-xl mb-3">
-Instant Quran Search
-</h3>
-
-<p class="text-gray-600">
-Find any verse instantly using powerful Arabic text search.
-</p>
-
-</div>
-
-
-<div class="bg-white p-8 rounded-xl shadow">
-
-<h3 class="font-semibold text-xl mb-3">
-Mushaf Reading Mode
-</h3>
-
-<p class="text-gray-600">
-Read the Quran in a clean page layout similar to the Mushaf.
-</p>
-
-</div>
-
-
-<div class="bg-white p-8 rounded-xl shadow">
-
-<h3 class="font-semibold text-xl mb-3">
-Fast Lightweight API
-</h3>
-
-<p class="text-gray-600">
-The app loads instantly using a lightweight Quran JSON API.
-</p>
-
-</div>
-
-
-<div class="bg-white p-8 rounded-xl shadow">
-
-<h3 class="font-semibold text-xl mb-3">
-Mobile Friendly
-</h3>
-
-<p class="text-gray-600">
-Fully responsive and optimized for mobile reading.
-</p>
-
-</div>
-
-
-<div class="bg-white p-8 rounded-xl shadow">
-
-<h3 class="font-semibold text-xl mb-3">
-Offline Ready
-</h3>
-
-<p class="text-gray-600">
-Works smoothly even with limited internet connectivity.
-</p>
-
-</div>
-
-
-<div class="bg-white p-8 rounded-xl shadow">
-
-<h3 class="font-semibold text-xl mb-3">
-Open Source
-</h3>
-
-<p class="text-gray-600">
-Built with modern technologies and available for developers.
-</p>
-
-</div>
-
-
-</div>
-
-</div>
-
+    </div>
+  </div>
 </section>
 
 
+<!-- ═══════════════════════════════════════
+     FEATURES
+═══════════════════════════════════════ -->
+<section id="features" class="py-24 bg-gray-50">
+  <div class="max-w-7xl mx-auto px-6">
 
-<!-- APPS -->
+    <div class="text-center mb-16 anim">
+      <span class="text-green-600 font-bold text-sm uppercase tracking-widest">Why NurDouha</span>
+      <h2 class="text-4xl md:text-5xl font-black mt-3 mb-4">Everything You Need</h2>
+      <p class="text-gray-500 text-lg max-w-xl mx-auto">
+        A complete Islamic platform built with care, speed, and beauty.
+      </p>
+    </div>
 
-<section id="apps" class="bg-gray-100 py-20">
+    <div class="grid md:grid-cols-3 gap-7">
 
-<div class="max-w-7xl mx-auto px-6">
+      <div class="bg-white rounded-2xl p-8 border border-gray-100 lift anim">
+        <div class="feat-icon">
+          <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-3">Beautiful Mushaf Layout</h3>
+        <p class="text-gray-500 leading-relaxed">Read the Quran in a clean distraction-free layout using authentic Amiri Arabic typography with two reading modes.</p>
+      </div>
 
-<h2 class="text-3xl font-bold text-center mb-16">
-Available Platforms
-</h2>
+      <div class="bg-white rounded-2xl p-8 border border-gray-100 lift anim anim-d1">
+        <div class="feat-icon">
+          <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-3">Instant Verse Search</h3>
+        <p class="text-gray-500 leading-relaxed">Find any surah instantly by name or number. Smart search works across all 114 chapters in real time.</p>
+      </div>
 
-<div class="grid md:grid-cols-2 gap-12">
+      <div class="bg-white rounded-2xl p-8 border border-gray-100 lift anim anim-d2">
+        <div class="feat-icon">
+          <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-3">Accurate Prayer Times</h3>
+        <p class="text-gray-500 leading-relaxed">Get precise prayer times for any city worldwide with a countdown timer to the next prayer and auto-location.</p>
+      </div>
 
+      <div class="bg-white rounded-2xl p-8 border border-gray-100 lift anim">
+        <div class="feat-icon">
+          <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/>
+            <line x1="12" y1="2"  x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-3">Qibla Compass &amp; Map</h3>
+        <p class="text-gray-500 leading-relaxed">Find the direction of the Kaaba from anywhere in the world using a live compass and interactive map.</p>
+      </div>
 
-<div class="bg-white p-10 rounded-xl shadow">
+      <div class="bg-white rounded-2xl p-8 border border-gray-100 lift anim anim-d1">
+        <div class="feat-icon">
+          <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M18.364 17.657l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-3">Night &amp; Day Modes</h3>
+        <p class="text-gray-500 leading-relaxed">Switch between light and dark themes for comfortable reading at any time of day or night.</p>
+      </div>
 
-<h3 class="text-xl font-semibold mb-4">
-Web Application
-</h3>
+      <div class="bg-white rounded-2xl p-8 border border-gray-100 lift anim anim-d2">
+        <div class="feat-icon">
+          <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold mb-3">Verse Bookmarks</h3>
+        <p class="text-gray-500 leading-relaxed">Bookmark your favourite verses and pick up reading exactly where you left off — saved locally in your browser.</p>
+      </div>
 
-<p class="text-gray-600 mb-6">
-Access the Quran directly from your browser with a fast and
-beautiful interface.
-</p>
-
-<a href="web/Quran/reader.html"
-class="bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700">
-Open Web Reader
-</a>
-
-</div>
-
-
-<div class="bg-white p-10 rounded-xl shadow">
-
-<h3 class="text-xl font-semibold mb-4">
-Android Application
-</h3>
-
-<p class="text-gray-600 mb-6">
-Read the Quran on your Android device with an optimized mobile interface.
-</p>
-
-<a href="#download"
-class="bg-green-600 text-white px-5 py-3 rounded-lg hover:bg-green-700">
-Download APK
-</a>
-
-</div>
-
-
-</div>
-
-</div>
-
+    </div>
+  </div>
 </section>
 
 
+<!-- ═══════════════════════════════════════
+     TOOLS SHOWCASE
+═══════════════════════════════════════ -->
+<section id="tools" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-6">
 
-<!-- DOWNLOAD -->
+    <div class="text-center mb-16 anim">
+      <span class="text-green-600 font-bold text-sm uppercase tracking-widest">Our Tools</span>
+      <h2 class="text-4xl md:text-5xl font-black mt-3 mb-4">All Your Islamic Tools</h2>
+      <p class="text-gray-500 text-lg max-w-xl mx-auto">Three powerful apps in one platform, free forever.</p>
+    </div>
 
-<section id="download" class="py-20 bg-green-700 text-white text-center">
+    <div class="grid md:grid-cols-3 gap-8">
 
-<div class="max-w-3xl mx-auto px-6">
+      <a href="web/Quran/reader.html"
+         class="group block rounded-3xl overflow-hidden border border-gray-200 lift anim">
+        <div class="tool-quran p-10 text-white">
+          <svg class="w-14 h-14 mb-6 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+          <h3 class="text-2xl font-black mb-2">Quran Reader</h3>
+          <p class="text-green-200 text-sm leading-relaxed">114 Surahs · 6,236 Verses · Search · Mushaf Mode · Bookmarks · Night Mode</p>
+        </div>
+        <div class="p-5 bg-white flex items-center justify-between">
+          <span class="font-bold text-gray-900 group-hover:text-green-600 transition-colors">Open Reader →</span>
+          <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">Free</span>
+        </div>
+      </a>
 
-<h2 class="text-3xl font-bold mb-6">
-Download Quran Reader
-</h2>
+      <a href="web/Prayer/PrayerTimes.html"
+         class="group block rounded-3xl overflow-hidden border border-gray-200 lift anim anim-d1">
+        <div class="tool-prayer p-10 text-white">
+          <svg class="w-14 h-14 mb-6 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <h3 class="text-2xl font-black mb-2">Prayer Times</h3>
+          <p class="text-blue-200 text-sm leading-relaxed">Worldwide Cities · Auto-Location GPS · Next Prayer Countdown · Hijri Date</p>
+        </div>
+        <div class="p-5 bg-white flex items-center justify-between">
+          <span class="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">View Times →</span>
+          <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-bold">Live</span>
+        </div>
+      </a>
 
-<p class="mb-8 opacity-90">
-Install the Android app or start reading directly in your browser.
-</p>
+      <a href="web/Prayer/Qibla.html"
+         class="group block rounded-3xl overflow-hidden border border-gray-200 lift anim anim-d2">
+        <div class="tool-qibla p-10 text-white">
+          <svg class="w-14 h-14 mb-6 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/>
+            <line x1="12" y1="2"  x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+          </svg>
+          <h3 class="text-2xl font-black mb-2">Qibla Direction</h3>
+          <p class="text-orange-200 text-sm leading-relaxed">Live Compass · Interactive Map · GPS Location · Distance to Kaaba</p>
+        </div>
+        <div class="p-5 bg-white flex items-center justify-between">
+          <span class="font-bold text-gray-900 group-hover:text-orange-600 transition-colors">Find Qibla →</span>
+          <span class="text-xs bg-amber-100 text-amber-700 px-3 py-1 rounded-full font-bold">GPS</span>
+        </div>
+      </a>
 
-<div class="space-x-4">
-
-<a href="./android/NurDouha.apk"
-class="bg-white text-green-700 px-6 py-3 rounded-lg font-semibold">
-Download
-</a>
-
-<a href="web/Quran/reader.html"
-class="border border-white px-6 py-3 rounded-lg">
-Open Web App
-</a>
-
-</div>
-
-</div>
-
+    </div>
+  </div>
 </section>
 
 
+<!-- ═══════════════════════════════════════
+     DAILY VERSE SECTION
+═══════════════════════════════════════ -->
+<section class="verse-bg py-24">
+  <div class="max-w-4xl mx-auto px-6 text-center anim">
+    <span class="text-green-600 font-bold text-sm uppercase tracking-widest">Reflection</span>
+    <h2 class="text-4xl font-black mt-3 mb-12">A Verse to Reflect Upon</h2>
 
-<!-- FOOTER -->
+    <div class="bg-white rounded-3xl p-10 shadow-xl shadow-green-100 border border-green-100">
+      <p class="text-green-600 text-xs font-bold uppercase tracking-widest mb-6">✦ Verse of the Day</p>
+      <p id="sectionVerseArabic" class="arabic text-4xl text-gray-900 text-right leading-loose mb-6 dir-rtl min-h-16">
+        بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+      </p>
+      <div class="w-16 h-px bg-green-200 mx-auto mb-6"></div>
+      <p id="sectionVerseRef" class="text-gray-500 font-semibold">Al-Fatiha — Verse 1</p>
+      <a href="web/Quran/reader.html" class="mt-8 inline-flex items-center gap-2 text-green-600 font-bold hover:text-green-700 transition-colors">
+        Read Full Surah
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
 
-<footer class="bg-gray-900 text-gray-400 py-12">
 
-<div class="max-w-7xl mx-auto px-6 text-center">
+<!-- ═══════════════════════════════════════
+     CTA BANNER
+═══════════════════════════════════════ -->
+<section class="hero-bg py-24 relative overflow-hidden">
+  <div class="dot-pattern absolute inset-0 pointer-events-none opacity-50"></div>
+  <div class="max-w-3xl mx-auto px-6 text-center relative z-10 anim">
+    <h2 class="text-4xl md:text-5xl font-black text-white mb-5">
+      Start Reading Today
+    </h2>
+    <p class="text-green-200/80 text-lg mb-10 max-w-lg mx-auto">
+      Connect with the words of Allah. Read, reflect, and strengthen your faith with NurDouha — completely free.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="web/Quran/reader.html"
+         class="flex items-center justify-center gap-3 bg-white text-green-800 px-10 py-5 rounded-2xl font-black text-lg hover:bg-green-50 shadow-2xl transition-all hover:-translate-y-1">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+        Open the Quran
+      </a>
+      <a href="web/Prayer/PrayerTimes.html"
+         class="flex items-center justify-center gap-3 border-2 border-white/30 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white/10 transition-all">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Prayer Times
+      </a>
+    </div>
+  </div>
+</section>
 
-<h3 class="text-white text-lg font-semibold mb-4">
-Quran Reader
-</h3>
 
-<p class="mb-6">
-A simple modern Quran reader built for learning and reflection.
-</p>
+<!-- ═══════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════ -->
+<footer class="bg-gray-950 text-gray-400 pt-16 pb-8">
+  <div class="max-w-7xl mx-auto px-6">
 
-<p class="text-sm text-gray-500">
-© 2026 Quran Reader Project
-</p>
+    <div class="grid md:grid-cols-4 gap-12 mb-12">
 
-</div>
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+          </div>
+          <span class="text-white text-xl font-black">NurDouha</span>
+        </div>
+        <p class="text-sm leading-relaxed max-w-xs mb-6">
+          A premium open-source Islamic platform providing tools for Quran reading,
+          prayer times, and Qibla direction — built for Muslims worldwide.
+        </p>
+        <a href="https://github.com/abdellahaarab/NurDouha"
+           class="inline-flex items-center gap-2 text-sm text-green-400 hover:text-green-300 transition-colors font-semibold">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          GitHub Repository
+        </a>
+      </div>
 
+      <div>
+        <h4 class="text-white font-bold mb-5">Tools</h4>
+        <ul class="space-y-3 text-sm">
+          <li><a href="web/Quran/reader.html"       class="hover:text-green-400 transition-colors">Quran Reader</a></li>
+          <li><a href="web/Prayer/PrayerTimes.html" class="hover:text-green-400 transition-colors">Prayer Times</a></li>
+          <li><a href="web/Prayer/Qibla.html"       class="hover:text-green-400 transition-colors">Qibla Direction</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="text-white font-bold mb-5">Coming Soon</h4>
+        <ul class="space-y-3 text-sm">
+          <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>Hadith Collection</li>
+          <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>Quran Audio</li>
+          <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>Tafsir</li>
+          <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>Islamic Calendar</li>
+          <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>99 Names of Allah</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
+      <p>© 2026 NurDouha — Open Islamic Platform. All Rights Reserved.</p>
+      <p>Developed by <a href="https://github.com/abdellahaarab/" class="text-green-400 hover:text-green-300 transition-colors font-semibold">Abdellah Aarab</a> — Open Source</p>
+    </div>
+
+  </div>
 </footer>
 
 
+<script>
+// ── Navbar scroll effect ──────────────────────────────────────────────────────
+const navbar   = document.getElementById('navbar')
+const logoText = document.getElementById('logo-text')
+const navLinks = [document.getElementById('nl1'), document.getElementById('nl2'),
+                  document.getElementById('nl3'), document.getElementById('nl4')]
+
+function handleNavScroll(){
+  const scrolled = window.scrollY > 60
+  if(scrolled){
+    navbar.classList.add('glass', 'shadow-md')
+    logoText.classList.replace('text-white','text-gray-900')
+    navLinks.forEach(l => { l.className = l.className.replace('text-white/90 hover:text-green-300','text-gray-700 hover:text-green-600') })
+  } else {
+    navbar.classList.remove('glass', 'shadow-md')
+    logoText.classList.replace('text-gray-900','text-white')
+    navLinks.forEach(l => { l.className = l.className.replace('text-gray-700 hover:text-green-600','text-white/90 hover:text-green-300') })
+  }
+}
+window.addEventListener('scroll', handleNavScroll, { passive: true })
+
+// ── Mobile menu ───────────────────────────────────────────────────────────────
+document.getElementById('menuBtn').addEventListener('click', () => {
+  document.getElementById('mobileMenu').classList.toggle('hidden')
+})
+
+// ── Scroll animations ─────────────────────────────────────────────────────────
+const animObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.classList.add('in')
+      animObserver.unobserve(entry.target)
+    }
+  })
+}, { threshold: 0.12 })
+document.querySelectorAll('.anim').forEach(el => animObserver.observe(el))
+
+// ── Counter animation ─────────────────────────────────────────────────────────
+function animateCount(el, target){
+  const start = performance.now()
+  const dur = 1400
+  const step = now => {
+    const t = Math.min((now - start) / dur, 1)
+    const ease = 1 - Math.pow(1 - t, 3)
+    el.textContent = Math.round(ease * target).toLocaleString()
+    if(t < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
+}
+
+const statsObs = new IntersectionObserver(entries => {
+  if(entries[0].isIntersecting){
+    document.querySelectorAll('.counter').forEach(el => {
+      animateCount(el, parseInt(el.dataset.target))
+    })
+    statsObs.disconnect()
+  }
+}, { threshold: 0.4 })
+const statsSection = document.getElementById('statsSection')
+if(statsSection) statsObs.observe(statsSection)
+
+// ── Daily Verse ───────────────────────────────────────────────────────────────
+async function loadDailyVerse(){
+  try {
+    const res   = await fetch('https://cdn.jsdelivr.net/npm/quran-cloud@1.0.0/dist/quran.json')
+    const quran = await res.json()
+    const day   = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000)
+    const surah = quran[day % 114]
+    const verse = surah.verses[day % surah.verses.length]
+    const ref   = `Surah ${surah.name} (${surah.transliteration}) — Verse ${verse.id}`
+
+    // Hero verse card
+    document.getElementById('verseArabic').textContent = verse.text
+    document.getElementById('verseRef').textContent    = ref
+    document.getElementById('dailyVerse').classList.remove('hidden')
+
+    // Section verse
+    document.getElementById('sectionVerseArabic').textContent = verse.text
+    document.getElementById('sectionVerseRef').textContent    = ref
+  } catch(e){ /* silent fail */ }
+}
+loadDailyVerse()
+</script>
+
 </body>
 </html>
-

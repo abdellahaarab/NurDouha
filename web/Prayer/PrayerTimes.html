@@ -1,307 +1,576 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prayer Times — NurDouha</title>
+  <meta name="description" content="Get accurate Islamic prayer times for any city worldwide with a live countdown to the next prayer.">
 
-<title>Prayer Times - NurDouha</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 
-<script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Cairo', sans-serif; }
 
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+    /* Prayer card colors */
+    .prayer-fajr    { --clr: #6366f1; --bg: #eef2ff; --border: #c7d2fe; }
+    .prayer-sunrise { --clr: #f59e0b; --bg: #fffbeb; --border: #fde68a; }
+    .prayer-dhuhr   { --clr: #0ea5e9; --bg: #e0f2fe; --border: #bae6fd; }
+    .prayer-asr     { --clr: #10b981; --bg: #ecfdf5; --border: #a7f3d0; }
+    .prayer-maghrib { --clr: #f97316; --bg: #fff7ed; --border: #fed7aa; }
+    .prayer-isha    { --clr: #8b5cf6; --bg: #f5f3ff; --border: #ddd6fe; }
 
-<style>
-body{
-font-family:'Cairo',sans-serif;
-}
-</style>
+    .prayer-card {
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .prayer-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+    }
+    .prayer-card.is-next {
+      border-width: 2px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      position: relative;
+    }
+    .prayer-card.is-next::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, var(--clr), transparent);
+      opacity: 0.15;
+      z-index: 0;
+    }
+    .prayer-dot {
+      width: 48px; height: 48px;
+      background: var(--clr);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .prayer-name  { color: var(--clr); font-weight: 800; font-size: 1rem; }
+    .prayer-time  { color: var(--clr); font-weight: 900; font-size: 1.5rem; }
 
+    /* Countdown */
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+    .pulse { animation: pulse 2s ease-in-out infinite; }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid #dcfce7;
+      border-top-color: #16a34a;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+
+    /* Fade in */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
+    .fade-up { animation: fadeUp 0.4s ease forwards; }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--clr);
+      border-radius: 2px;
+      transition: width 1s linear;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: #d1fae5; border-radius: 3px; }
+
+    /* Lift animation */
+    .anim { opacity:0; transform:translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .anim.in { opacity:1; transform:translateY(0); }
+    .anim-d1 { transition-delay: 0.1s; }
+    .anim-d2 { transition-delay: 0.2s; }
+    .anim-d3 { transition-delay: 0.3s; }
+    .anim-d4 { transition-delay: 0.4s; }
+    .anim-d5 { transition-delay: 0.5s; }
+  </style>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-50 min-h-screen">
 
+<!-- ═══════════════════════════════════════
+     HEADER
+═══════════════════════════════════════ -->
+<header class="bg-white border-b border-gray-100 sticky top-0 z-10 shadow-sm">
+  <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
 
-<!-- Header -->
+    <div class="flex items-center gap-4">
+      <a href="../../index.html"
+         class="flex items-center gap-2 text-gray-500 hover:text-green-600 transition-colors text-sm font-semibold">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Home
+      </a>
+      <span class="text-gray-200">|</span>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center">
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-base font-black text-gray-900 leading-none">Prayer Times</h1>
+          <p class="text-xs text-gray-400" id="headerDate"></p>
+        </div>
+      </div>
+    </div>
 
-<header class="bg-green-700 text-white py-4 shadow">
+    <div class="flex items-center gap-3">
+      <a href="../Prayer/Qibla.html"
+         class="hidden sm:flex items-center gap-2 text-sm text-gray-500 hover:text-green-600 transition-colors font-semibold">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/>
+          <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+        </svg>
+        Qibla
+      </a>
+      <a href="../Quran/reader.html"
+         class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+        Quran
+      </a>
+    </div>
 
-<div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
-
-<h1 class="text-2xl font-bold">
-NurDouha Prayer Times
-</h1>
-
-<a href="/" class="bg-white text-green-700 px-4 py-2 rounded">
-Home
-</a>
-
-</div>
-
+  </div>
 </header>
 
 
-<!-- Main -->
+<div class="max-w-5xl mx-auto px-6 py-8">
 
-<div class="max-w-4xl mx-auto px-6 py-10">
-
-
-<!-- Location -->
-
-<div class="bg-white p-6 rounded-xl shadow mb-8">
-
-<h2 class="text-xl font-semibold mb-4">
-Location
-</h2>
-
-<div class="flex gap-4">
-
-<input
-id="city"
-placeholder="Enter city (example: Casablanca)"
-class="border p-2 rounded w-full"
-/>
-
-<button
-onclick="getPrayerTimes()"
-class="bg-green-600 text-white px-4 py-2 rounded"
->
-Search
-</button>
-
-</div>
-
-<p id="locationName" class="text-gray-500 mt-3"></p>
-
-</div>
-
-
-<!-- Prayer Times -->
-
-<div class="bg-white p-8 rounded-xl shadow">
-
-<h2 class="text-2xl font-bold mb-6 text-center">
-Today's Prayer Times
-</h2>
-
-<div id="prayerTimes" class="space-y-4"></div>
-
-</div>
+  <!-- ═══════════════════════════════════════
+       LOCATION BAR
+  ═══════════════════════════════════════ -->
+  <div class="bg-white rounded-2xl border border-gray-200 p-5 mb-6 shadow-sm anim">
+    <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <span class="font-bold text-gray-700 text-sm">Location</span>
+      </div>
+      <div class="flex gap-3 w-full">
+        <input id="cityInput"
+               type="text"
+               placeholder="Enter city (e.g. Casablanca, Cairo, London…)"
+               class="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-all"
+               onkeydown="if(event.key==='Enter') getPrayerTimes()">
+        <button onclick="getPrayerTimes()"
+                class="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 flex-shrink-0">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Search
+        </button>
+        <button onclick="useGPS()"
+                class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors flex items-center gap-2 flex-shrink-0 border border-blue-200"
+                title="Use my GPS location">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+          </svg>
+          GPS
+        </button>
+      </div>
+    </div>
+    <p id="locationDisplay" class="text-sm text-gray-400 mt-3 font-medium hidden"></p>
+  </div>
 
 
-</div>
+  <!-- ═══════════════════════════════════════
+       LOADING STATE
+  ═══════════════════════════════════════ -->
+  <div id="loadingState" class="text-center py-16 hidden">
+    <div class="spinner mb-4"></div>
+    <p class="text-gray-400 font-semibold">Fetching prayer times…</p>
+  </div>
 
 
-<script>
-
-const API="https://api.aladhan.com/v1/timingsByCity"
-
-function getPrayerTimes(){
-
-const city=document.getElementById("city").value || "Casablanca"
-const country="Morocco"
-
-fetch(`${API}?city=${city}&country=${country}&method=2`)
-.then(res=>res.json())
-.then(data=>{
-
-const timings=data.data.timings
-
-document.getElementById("locationName").innerText=
-`${data.data.meta.timezone} — ${city}`
-
-renderTimes(timings)
-
-})
-
-}
+  <!-- ═══════════════════════════════════════
+       NEXT PRAYER COUNTDOWN
+  ═══════════════════════════════════════ -->
+  <div id="nextPrayerCard" class="hidden bg-gradient-to-br from-green-700 to-emerald-800 rounded-2xl p-7 mb-6 text-white shadow-xl anim">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <p class="text-green-300 text-xs font-bold uppercase tracking-widest mb-2">Next Prayer</p>
+        <h2 id="nextPrayerName" class="text-3xl font-black mb-1">—</h2>
+        <p id="nextPrayerTime" class="text-green-200 text-lg font-semibold"></p>
+      </div>
+      <div class="text-right">
+        <p class="text-green-300 text-xs font-bold uppercase tracking-widest mb-2">Time Remaining</p>
+        <div id="countdown" class="text-4xl font-black tracking-wider pulse">--:--:--</div>
+      </div>
+    </div>
+    <!-- Progress bar -->
+    <div class="mt-5 progress-bar" style="--clr: #4ade80; background: rgba(255,255,255,0.15);">
+      <div id="progressFill" class="progress-fill" style="width: 0%; background: #4ade80;"></div>
+    </div>
+  </div>
 
 
-function renderTimes(timings){
+  <!-- ═══════════════════════════════════════
+       PRAYER CARDS GRID
+  ═══════════════════════════════════════ -->
+  <div id="prayerGrid" class="grid md:grid-cols-3 gap-5 hidden"></div>
 
-const prayers=[
-"Fajr",
-"Dhuhr",
-"Asr",
-"Maghrib",
-"Isha"
-]
 
-const container=document.getElementById("prayerTimes")
-
-container.innerHTML=""
-
-const now=new Date()
-
-const currentMinutes=now.getHours()*60+now.getMinutes()
-
-prayers.forEach(name=>{
-
-const time=timings[name]
-
-const parts=time.split(":")
-const minutes=parseInt(parts[0])*60+parseInt(parts[1])
-
-let highlight=""
-
-if(minutes>currentMinutes && highlight===""){
-highlight="bg-green-100 border-green-500"
-}
-
-container.innerHTML+=`
-
-<div class="flex justify-between items-center border-l-4 ${highlight} p-4 rounded">
-
-<span class="font-semibold text-lg">
-${name}
-</span>
-
-<span class="text-green-700 font-bold">
-${time}
-</span>
+  <!-- ═══════════════════════════════════════
+       EMPTY STATE
+  ═══════════════════════════════════════ -->
+  <div id="emptyState" class="text-center py-16">
+    <div class="w-20 h-20 bg-blue-100 rounded-3xl flex items-center justify-center mx-auto mb-5">
+      <svg class="w-10 h-10 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+    </div>
+    <h3 class="text-xl font-bold text-gray-700 mb-2">Prayer Times</h3>
+    <p class="text-gray-400 mb-6">Enter a city name or allow location access to get today's prayer schedule.</p>
+    <button onclick="useGPS()"
+            class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-colors">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+      </svg>
+      Use My Location
+    </button>
+  </div>
 
 </div>
 
-`
 
-})
-
-}
-
-
-function getLocation(){
-
-if(navigator.geolocation){
-
-navigator.geolocation.getCurrentPosition(position=>{
-
-const lat=position.coords.latitude
-const lon=position.coords.longitude
-
-fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=2`)
-.then(res=>res.json())
-.then(data=>{
-
-renderTimes(data.data.timings)
-
-document.getElementById("locationName").innerText=
-data.data.meta.timezone
-
-})
-
-})
-
-}
-
-}
-
-
-getLocation()
-
-</script>
-
-
-<!-- Footer -->
-
-<footer class="bg-gray-900 text-gray-300 mt-16">
-
-<div class="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-10">
-
-<!-- Project Info -->
-
-<div>
-
-<h3 class="text-xl font-bold text-white mb-4">
-NurDouha
-</h3>
-
-<p class="text-sm leading-relaxed">
-NurDouha is an open-source Islamic platform providing tools for
-Quran reading, prayer times, Qibla direction, and other Islamic
-knowledge resources.
-</p>
-
-</div>
-
-
-<!-- Navigation -->
-
-<div>
-
-<h4 class="text-white font-semibold mb-4">
-Tools
-</h4>
-
-<ul class="space-y-2 text-sm">
-
-<li>
-<a href="../Quran/reader.html" class="hover:text-green-400">
-Quran Reader
-</a>
-</li>
-
-<li>
-<a href="../Prayer/PrayerTimes.html" class="hover:text-green-400">
-Prayer Times
-</a>
-</li>
-
-<li>
-<a href="../Prayer/Qibla.html" class="hover:text-green-400">
-Qibla Direction
-</a>
-</li>
-
-</ul>
-
-</div>
-
-
-<!-- Future Features -->
-
-<div>
-
-<h4 class="text-white font-semibold mb-4">
-Coming Soon
-</h4>
-
-<ul class="space-y-2 text-sm">
-
-<li>Hadith Collection</li>
-<li>Islamic Books</li>
-<li>Tafsir</li>
-<li>Quran Audio</li>
-
-</ul>
-
-</div>
-
-</div>
-
-
-<!-- Bottom Bar -->
-
-<div class="border-t border-gray-700">
-
-<div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center text-sm">
-
-<p>
-© 2026 NurDouha — Open Islamic Platform
-</p>
-
-<p class="text-gray-500">
-Developed by 
-<a href="https://github.com/abdellahaarab/" class="hover:text-green-400">
-Abdellah
-</a> as part of the NurDouha open-source project
-</p>
-
-</div>
-
-</div>
-
+<!-- ═══════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════ -->
+<footer class="bg-gray-900 text-gray-400 mt-12 py-10">
+  <div class="max-w-5xl mx-auto px-6 grid md:grid-cols-3 gap-8">
+    <div>
+      <h3 class="text-white font-bold mb-3">NurDouha</h3>
+      <p class="text-sm leading-relaxed">An open-source Islamic platform for Quran reading, prayer times, and Qibla direction.</p>
+    </div>
+    <div>
+      <h4 class="text-white font-semibold mb-3">Tools</h4>
+      <ul class="space-y-2 text-sm">
+        <li><a href="../Quran/reader.html"    class="hover:text-green-400 transition-colors">Quran Reader</a></li>
+        <li><a href="PrayerTimes.html"        class="hover:text-green-400 transition-colors">Prayer Times</a></li>
+        <li><a href="Qibla.html"              class="hover:text-green-400 transition-colors">Qibla Direction</a></li>
+        <li><a href="../../index.html"        class="hover:text-green-400 transition-colors">Home</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="text-white font-semibold mb-3">Coming Soon</h4>
+      <ul class="space-y-2 text-sm">
+        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>Hadith Collection</li>
+        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>Quran Audio</li>
+        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>Islamic Calendar</li>
+      </ul>
+    </div>
+  </div>
+  <div class="max-w-5xl mx-auto px-6 mt-8 pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-sm gap-3">
+    <p>© 2026 NurDouha — Open Islamic Platform</p>
+    <p>Developed by <a href="https://github.com/abdellahaarab/" class="text-green-400 hover:text-green-300">Abdellah</a></p>
+  </div>
 </footer>
 
 
+<script>
+// ─────────────────────────────────────────────────────────────
+//  CONFIG
+// ─────────────────────────────────────────────────────────────
+const PRAYER_API  = 'https://api.aladhan.com/v1/timingsByCity'
+const COORD_API   = 'https://api.aladhan.com/v1/timings'
+
+const PRAYER_INFO = {
+  Fajr:    { label: 'Fajr',    sub: 'Dawn Prayer',    cls: 'prayer-fajr',    icon: '🌙' },
+  Sunrise: { label: 'Sunrise', sub: 'Sunrise',        cls: 'prayer-sunrise', icon: '🌅' },
+  Dhuhr:   { label: 'Dhuhr',   sub: 'Midday Prayer',  cls: 'prayer-dhuhr',   icon: '☀️' },
+  Asr:     { label: 'Asr',     sub: 'Afternoon',      cls: 'prayer-asr',     icon: '🌤' },
+  Maghrib: { label: 'Maghrib', sub: 'Sunset Prayer',  cls: 'prayer-maghrib', icon: '🌇' },
+  Isha:    { label: 'Isha',    sub: 'Night Prayer',   cls: 'prayer-isha',    icon: '🌌' }
+}
+
+const KEYS = Object.keys(PRAYER_INFO)
+
+// ─────────────────────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────────────────────
+let timingsData      = null
+let countdownInterval = null
+let prevPrayerMinutes = 0
+
+// ─────────────────────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────────────────────
+function init(){
+  updateHeaderDate()
+  setInterval(updateHeaderDate, 60000)
+  // Auto-detect GPS on load
+  useGPS()
+}
+
+function updateHeaderDate(){
+  const now = new Date()
+  document.getElementById('headerDate').textContent =
+    now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+}
+
+// ─────────────────────────────────────────────────────────────
+//  FETCH BY CITY
+// ─────────────────────────────────────────────────────────────
+async function getPrayerTimes(){
+  const city = document.getElementById('cityInput').value.trim() || 'Casablanca'
+  showLoading(true)
+
+  try {
+    const res  = await fetch(`${PRAYER_API}?city=${encodeURIComponent(city)}&country=&method=2`)
+    const data = await res.json()
+    if(data.code !== 200) throw new Error(data.status || 'Failed')
+
+    timingsData = data.data.timings
+    const tz    = data.data.meta.timezone
+
+    document.getElementById('locationDisplay').textContent = `📍 ${city} · ${tz}`
+    document.getElementById('locationDisplay').classList.remove('hidden')
+
+    renderPrayerCards(timingsData)
+  } catch(e) {
+    showError('Could not find prayer times for this city. Please check the name and try again.')
+  } finally {
+    showLoading(false)
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  FETCH BY GPS
+// ─────────────────────────────────────────────────────────────
+function useGPS(){
+  if(!navigator.geolocation){
+    showError('Geolocation is not supported by your browser.')
+    return
+  }
+  showLoading(true)
+  navigator.geolocation.getCurrentPosition(
+    async pos => {
+      try {
+        const { latitude: lat, longitude: lon } = pos.coords
+        const res  = await fetch(`${COORD_API}?latitude=${lat}&longitude=${lon}&method=2`)
+        const data = await res.json()
+        if(data.code !== 200) throw new Error()
+
+        timingsData = data.data.timings
+        const tz    = data.data.meta.timezone
+
+        document.getElementById('locationDisplay').textContent = `📍 GPS Location · ${tz}`
+        document.getElementById('locationDisplay').classList.remove('hidden')
+        document.getElementById('cityInput').value = ''
+
+        renderPrayerCards(timingsData)
+      } catch(e) {
+        showError('Could not fetch prayer times from GPS location.')
+      } finally {
+        showLoading(false)
+      }
+    },
+    () => {
+      showLoading(false)
+      // Fall back to Casablanca
+      document.getElementById('cityInput').value = 'Casablanca'
+      getPrayerTimes()
+    }
+  )
+}
+
+// ─────────────────────────────────────────────────────────────
+//  RENDER PRAYER CARDS
+// ─────────────────────────────────────────────────────────────
+function renderPrayerCards(timings){
+  const now     = new Date()
+  const nowMins = now.getHours() * 60 + now.getMinutes()
+
+  // Find next prayer
+  let nextKey  = null
+  let nextMins = null
+  let prevMins = 0
+
+  for(const key of KEYS){
+    const [h, m] = timings[key].split(':').map(Number)
+    const mins   = h * 60 + m
+    if(mins > nowMins && nextKey === null){
+      nextKey  = key
+      nextMins = mins
+      break
+    }
+    prevMins = mins
+  }
+
+  // If no prayer found today, next is Fajr tomorrow
+  if(!nextKey){
+    nextKey  = 'Fajr'
+    const [h, m] = timings['Fajr'].split(':').map(Number)
+    nextMins = h * 60 + m + 1440
+  }
+
+  prevPrayerMinutes = prevMins
+
+  // Render cards
+  document.getElementById('emptyState').classList.add('hidden')
+  const grid = document.getElementById('prayerGrid')
+  grid.classList.remove('hidden')
+  grid.innerHTML = ''
+
+  KEYS.forEach((key, idx) => {
+    const info  = PRAYER_INFO[key]
+    const time  = timings[key]
+    const isNext = key === nextKey
+    const isPast = !isNext && (nowMins > (()=>{ const [h,m]=time.split(':').map(Number); return h*60+m })())
+
+    const card = document.createElement('div')
+    card.className = `prayer-card ${info.cls} ${isNext ? 'is-next' : ''} anim anim-d${idx}`
+    card.innerHTML = `
+      <div class="relative z-10">
+        <div class="flex items-center justify-between mb-4">
+          <div class="prayer-dot">
+            <span class="text-xl">${info.icon}</span>
+          </div>
+          ${isNext
+            ? `<span class="bg-white/70 text-xs font-black px-3 py-1 rounded-full prayer-name">NEXT</span>`
+            : isPast
+              ? `<span class="text-xs text-gray-400 font-semibold">Passed</span>`
+              : ''}
+        </div>
+        <h3 class="prayer-name mb-0.5">${info.label}</h3>
+        <p class="text-gray-500 text-xs font-semibold mb-3">${info.sub}</p>
+        <div class="prayer-time">${time}</div>
+      </div>`
+
+    // Add progress bar for next prayer
+    if(isNext){
+      const bar = document.createElement('div')
+      bar.className = 'progress-bar mt-4 relative z-10'
+      bar.style.setProperty('--clr', 'var(--clr)')
+      bar.style.background = 'rgba(255,255,255,0.3)'
+      bar.innerHTML = `<div id="cardProgress" class="progress-fill" style="width:0%; background:var(--clr)"></div>`
+      card.appendChild(bar)
+    }
+
+    grid.appendChild(card)
+  })
+
+  // Trigger animations
+  setTimeout(() => grid.querySelectorAll('.anim').forEach(el => el.classList.add('in')), 50)
+
+  // Animate observer
+  const animObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); animObs.unobserve(e.target) } })
+  }, { threshold: 0.1 })
+  grid.querySelectorAll('.anim').forEach(el => animObs.observe(el))
+
+  // Show & start countdown
+  showNextPrayerCard(nextKey, timings[nextKey === 'Fajr' && nextMins > 1440 ? 'Fajr' : nextKey], nextMins, prevMins)
+}
+
+// ─────────────────────────────────────────────────────────────
+//  NEXT PRAYER CARD & COUNTDOWN
+// ─────────────────────────────────────────────────────────────
+function showNextPrayerCard(name, time, nextMins, prevMins){
+  document.getElementById('nextPrayerName').textContent = PRAYER_INFO[name]?.label || name
+  document.getElementById('nextPrayerTime').textContent = time
+
+  document.getElementById('nextPrayerCard').classList.remove('hidden')
+
+  if(countdownInterval) clearInterval(countdownInterval)
+
+  const totalSpan = nextMins < 1440
+    ? (nextMins - prevMins) * 60 * 1000
+    : (nextMins - prevMins) * 60 * 1000
+
+  function tick(){
+    const now     = new Date()
+    const nowMs   = (now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()) * 1000
+    let   targetMs
+
+    if(nextMins >= 1440){
+      targetMs = (nextMins - 1440) * 60 * 1000 + 86400000
+    } else {
+      targetMs = nextMins * 60 * 1000
+    }
+
+    let diff = targetMs - nowMs
+    if(diff < 0) diff += 86400000
+
+    const h = Math.floor(diff / 3600000)
+    const m = Math.floor((diff % 3600000) / 60000)
+    const s = Math.floor((diff % 60000) / 1000)
+
+    document.getElementById('countdown').textContent =
+      `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+
+    // Progress
+    const elapsed = totalSpan - diff
+    const pct     = Math.max(0, Math.min(100, (elapsed / totalSpan) * 100))
+    const progress = document.getElementById('progressFill')
+    if(progress) progress.style.width = pct + '%'
+    const cardProg = document.getElementById('cardProgress')
+    if(cardProg) cardProg.style.width = pct + '%'
+  }
+
+  tick()
+  countdownInterval = setInterval(tick, 1000)
+}
+
+// ─────────────────────────────────────────────────────────────
+//  UI HELPERS
+// ─────────────────────────────────────────────────────────────
+function showLoading(on){
+  document.getElementById('loadingState').classList.toggle('hidden', !on)
+  if(on){
+    document.getElementById('prayerGrid').classList.add('hidden')
+    document.getElementById('nextPrayerCard').classList.add('hidden')
+  }
+}
+
+function showError(msg){
+  document.getElementById('prayerGrid').innerHTML =
+    `<div class="md:col-span-3 text-center py-12 text-red-400">
+      <p class="text-5xl mb-4">⚠️</p>
+      <p class="font-bold text-lg mb-2">Error</p>
+      <p class="text-sm">${msg}</p>
+    </div>`
+  document.getElementById('prayerGrid').classList.remove('hidden')
+  document.getElementById('emptyState').classList.add('hidden')
+}
+
+// ─────────────────────────────────────────────────────────────
+//  SCROLL ANIMATION
+// ─────────────────────────────────────────────────────────────
+const animObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); animObs.unobserve(e.target) } })
+}, { threshold: 0.1 })
+document.querySelectorAll('.anim').forEach(el => animObs.observe(el))
+
+// ─────────────────────────────────────────────────────────────
+//  START
+// ─────────────────────────────────────────────────────────────
+init()
+</script>
+
 </body>
 </html>
-
