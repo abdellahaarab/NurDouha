@@ -1,115 +1,110 @@
 <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- <title>Quran Reader App</title> -->
-    <!-- SEO -->
-    
-    <title>NurDouha - Quran, Prayer Times & Islamic Tools</title>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NurDouha — Premium Islamic Platform</title>
+  <meta name="description" content="Read the Holy Quran, get accurate prayer times, and find Qibla direction with NurDouha — the world's most beautiful Islamic web platform.">
+  <meta property="og:title" content="NurDouha — Premium Islamic Platform">
+  <meta property="og:description" content="Quran Reader · Prayer Times · Qibla Direction">
 
-      <!-- FAVICON -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 
-    <meta name="description" content="NurDouha is a modern Islamic platform to read the Quran, check prayer times, find Qibla direction, and access Islamic knowledge tools." />
-    
-    <meta name="keywords" content="Quran, Prayer Times, Qibla, Islam, Islamic App, Quran Reader, Muslim Tools, NurDouha" />
-    
-    <meta name="author" content="Abdellah Aarab" />
-    
-    <meta name="robots" content="index, follow" />
-    
-    <meta name="language" content="Arabic, English" />
-    
-    
-    <!-- MOBILE & PERFORMANCE -->
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <meta name="theme-color" content="#16a34a" />
-    
-    <meta name="color-scheme" content="light dark" />
-    
-    
-    <!-- OPEN GRAPH (Facebook / WhatsApp / LinkedIn) -->
-    
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="NurDouha - Islamic Platform" />
-    <meta property="og:description" content="Read Quran, check prayer times, find Qibla direction and explore Islamic tools." />
-    <meta property="og:image" content="https://nurdouha.site/assets/images/img-hearo.png" />
-    <meta property="og:url" content="https://nurdouha.site" />
-    <meta property="og:site_name" content="NurDouha" />
-    
-    
-    <!-- TWITTER CARD -->
-    
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="NurDouha - Quran & Islamic Tools" />
-    <meta name="twitter:description" content="Modern Islamic app with Quran reader, prayer times and Qibla compass." />
-    <meta name="twitter:image" content="https://nurdouha.site/assets/images/img-hearo.png" />
-    
-    
-    <!-- FAVICON -->
-    
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" href="/favicon.ico" />
-    
-    
-    <!-- PWA (Optional but PRO) -->
-    
-    <link rel="manifest" href="/manifest.json" />
-    
-    
-    <!-- CANONICAL URL -->
-    
-    <link rel="canonical" href="https://nurdouha.site" />
-    
-    
-    <!-- STRUCTURED DATA (AI + GOOGLE) -->
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "NurDouha",
-      "url": "https://nurdouha.site",
-      "description": "Islamic platform providing Quran reading, prayer times, Qibla direction and more.",
-      "applicationCategory": "LifestyleApplication",
-      "operatingSystem": "Android, Web",
-      "author": {
-        "@type": "Person",
-        "name": "Abdellah",
-        "name2": "Aarab",
-      }
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Cairo', sans-serif; }
+    .arabic { font-family: 'Amiri', serif; }
+
+    /* Hero background */
+    .hero-bg {
+      background: linear-gradient(135deg, #052e16 0%, #14532d 50%, #065f46 100%);
     }
-    </script>
-    
-    
-    <!-- EXTRA AI / SEARCH SIGNALS -->
-    
-    <meta name="googlebot" content="index, follow" />
-    <meta name="bingbot" content="index, follow" />
-    
-    <meta name="AI-Content-Declaration" content="human-created" />
-    <meta name="content-type" content="text/html; charset=UTF-8" />
-    
 
+    /* Dot grid pattern overlay */
+    .dot-pattern {
+      background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1.5px, transparent 1.5px);
+      background-size: 36px 36px;
+    }
 
-<script src="https://cdn.tailwindcss.com"></script>
+    /* Navbar glass */
+    .glass {
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
 
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Amiri&display=swap" rel="stylesheet">
+    /* Scroll animations */
+    .anim {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .anim.in { opacity: 1; transform: translateY(0); }
+    .anim-d1 { transition-delay: 0.1s; }
+    .anim-d2 { transition-delay: 0.2s; }
+    .anim-d3 { transition-delay: 0.3s; }
 
-<style>
-body{
-font-family:'Cairo',sans-serif;
-}
-.arabic{
-font-family:'Amiri',serif;
-}
-</style>
+    /* Card hover lift */
+    .lift {
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .lift:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 28px 56px rgba(0,0,0,0.13);
+    }
 
+    /* Pulse dot */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+    /* Bounce arrow */
+    @keyframes bounce-y {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+    .bounce-y { animation: bounce-y 1.6s ease-in-out infinite; }
+
+    /* Gradient text */
+    .text-gradient {
+      background: linear-gradient(135deg, #4ade80, #86efac);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Feature icon */
+    .feat-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Tool card gradient tops */
+    .tool-quran  { background: linear-gradient(140deg, #14532d, #059669); }
+    .tool-prayer { background: linear-gradient(140deg, #1e3a8a, #3b82f6); }
+    .tool-qibla  { background: linear-gradient(140deg, #7c2d12, #f97316); }
+
+    /* Stats divider */
+    .stat-divider { border-right: 1px solid #e5e7eb; }
+    .stat-divider:last-child { border-right: none; }
+
+    /* Verse section */
+    .verse-bg {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #16a34a; border-radius: 3px; }
+  </style>
 </head>
 
 <body class="bg-white text-gray-900 overflow-x-hidden">
