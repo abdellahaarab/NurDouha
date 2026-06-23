@@ -126,6 +126,13 @@ NurDouha aims to become an open Islamic platform that helps Muslims access Quran
 
 ---
 
+
+### ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=abdellahaarab/NurDouha&type=Date&theme=dark)](https://star-history.com/#abdellahaarab/NurDouha&Date)
+
+---
+
 ## 👨‍💻 Author
 
 Developed by **Abdellah**
